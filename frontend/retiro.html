@@ -1,55 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>UniEats - Retiro</title>
-  <link rel="stylesheet" href="estilos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-<div id="app">
-  <h1>¿A qué hora te gustaría retirar tu pedido?</h1>
+  <div id="app" class="page pick">
+    <div class="card">
+      <h1 class="title" style="text-align:center">¿A qué hora te gustaría retirar tu pedido?</h1>
 
-  <select v-model="horaElegida">
-    <option v-for="h in horarios" :key="h" :value="h">{{ h }}</option>
-  </select>
+      <ul class="list">
+        <li class="item" v-for="h in horarios" :key="h" @click="hora=h" :style="(hora===h)?'border-color:#173a77':''">
+          <span>{{ h }}</span>
+          <span v-if="hora===h" class="badge">✓</span>
+        </li>
+      </ul>
 
-  <button @click="confirmar">Confirmar</button>
+      <button class="btn-primary btn-narrow confirmar" @click="confirmar" :disabled="!hora">
+        Confirmar
+      </button>
+      <p v-if="error" class="error">{{ error }}</p>
+    </div>
 
-  <div class="nav-bottom">
-    <span class="ico">📋︎</span><span> Mis Pedidos</span>
-    <span class="ico">🔔︎</span><span> Notificaciones</span>
-    <span class="ico">👤︎</span><span> Mi Perfil</span>
+    <nav class="nav-bottom">
+      <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
+      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+    </nav>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script>
-function param(n){ return new URL(location.href).searchParams.get(n); }
-
-new Vue({
-  el:'#app',
-  data:{
-    uni:param('uni')||'ucema',
-    pedido:param('pedido'),
-    horarios:[],
-    horaElegida:'10:00'
-  },
-  created(){ this.horarios=this.generarHorarios(); },
-  methods:{
-    generarHorarios(){
-      const res=[]; let h=10,m=0;
-      while(h<20 || (h===20 && m===0)){
-        const hh=(h<10?'0':'')+h, mm=(m===0?'00':m);
-        res.push(`${hh}:${mm}`);
-        m+=15; if(m===60){m=0; h+=1;}
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    function param(n){ return new URL(location.href).searchParams.get(n); }
+    function genHoras(){
+      // 10:00 a 20:00 cada 15 min
+      const out=[], pad=n=>String(n).padStart(2,'0');
+      for(let h=10; h<=20; h++){
+        for(let m of [0,15,30,45]){
+          if(h===20 && m>0) break;
+          out.push(`${pad(h)}:${pad(m)}`);
+        }
       }
-      return res;
-    },
-    confirmar(){
-      window.location='confirmacion.html?uni='+this.uni+'&pedido='+this.pedido+'&hora='+this.horaElegida;
+      return out;
     }
-  }
-});
-</script>
+
+    new Vue({
+      el:'#app',
+      data:{ uni:param('uni')||'ucema', pedido:param('pedido')||'', horarios:genHoras(), hora:'', error:'' },
+      methods:{
+        confirmar(){
+          const base='http://127.0.0.1:4000';
+          axios.put(base+'/api/pedidos/'+this.pedido,{hora_retiro:this.hora, estado:'pendiente'})
+          .catch(()=>{}) 
+          .then(()=> window.location='confirmacion.html?pedido='+this.pedido);
+        }
+      }
+    });
+  </script>
 </body>
 </html>

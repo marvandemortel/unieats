@@ -1,49 +1,111 @@
-/* Fondo y tipografía */
-body{font-family:Arial, Helvetica, sans-serif;background:#eaf4ff;margin:0;padding:20px}
-h1,h2{color:#0d1b3d;margin:10px 0}
-
-/* Campos */
-input,select,button{width:100%;padding:10px;margin:6px 0;border:1px solid #c9d9f6;border-radius:8px;box-sizing:border-box}
-
-/* Botón principal (azul oscuro, grande) */
-button{
-  background:#173a77;        /* azul oscuro */
-  color:#fff;
-  border:none;
-  font-weight:bold;
-  padding:14px;
-  font-size:18px;
+/* ====== Tema UniEats ====== */
+:root{
+  --bg:#eaf4ff;          
+  --navy:#173a77;        
+  --navy-600:#1e458e;    
+  --line:#cbd5e1;        
+  --card:#ffffff;        
+  --error:#b00020;       
+  --brand-e:#3fb1ff;     
 }
-button:hover{background:#0f2a59;cursor:pointer}
 
-/* Login centrado con tarjeta */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px 20px 76px}
-.login-card{width:100%;max-width:600px;background:#f7fbff;border:1px solid #cbd5e1;border-radius:12px;padding:24px}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  margin:0;
+  color:#0d1b3d;
+}
 
-/* Logo redondo (usa frontend/img/logo.png) */
-.logo{width:140px;height:140px;border-radius:50%;display:block;margin:0 auto 16px;border:4px solid #e8f0fe;object-fit:cover}
+/* ====== Layout ====== */
+.page{
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:24px 16px 84px; 
+}
 
-.bienvenida{font-weight:bold;margin-top:8px;color:#0d1b3d}
+.card{
+  max-width:720px;
+  margin:36px auto 0;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:24px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+}
 
-/* Barra inferior */
-.nav-bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #cbd5e1;display:flex;justify-content:space-around;gap:8px;padding:8px 0;font-weight:600}
+/* ====== Encabezados ====== */
+.logo{
+  width:140px;height:140px;border-radius:50%;
+  display:block;margin:0 auto 10px;
+  border:4px solid #e8f0fe;background:#fff;object-fit:cover;
+}
 
-/* Lista tipo tarjetas (sin fotos) */
-.lista{list-style:none;padding:0;margin:10px 0}
-.item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:10px;margin-bottom:8px}
-.item .txt{display:flex;align-items:center;gap:10px}
+.brand{
+  text-align:center;margin:0 0 8px;
+  font-size:28px;letter-spacing:.4px;font-weight:800;color:var(--navy);
+}
+.brand-e{ color: var(--brand-e); }
+h1.title{font-size:28px;margin:8px 0 16px;color:var(--navy);}
 
-/* Iconos en blanco y negro */
-.ico,.nav-bottom .ico{color:#111;font-weight:700;font-size:18px}
+/* ====== Controles ====== */
+label{display:block;margin:10px 0 6px}
+input,select{
+  width:100%;padding:12px 14px;border:1px solid var(--line);
+  border-radius:10px;background:#f8fafc;outline:none;
+}
+input:focus, select:focus{ border-color: var(--navy); }
 
-/* Opciones (pago/horarios) */
-.btn-opcion{background:#fff;border:1px solid #cbd5e1;color:#0d1b3d;font-weight:600;text-align:left}
-.btn-opcion:hover{background:#f2f6ff}
+/* Botón principal */
+.btn-primary{
+  background:var(--navy);color:#fff;border:none;font-weight:700;
+  padding:12px 16px;border-radius:10px;transition:.2s ease;display:block;
+}
+.btn-primary:hover{ background:var(--navy-600); cursor:pointer; }
+.btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
+.btn-narrow{ max-width:340px;width:100%;margin:14px auto 0; }
 
-/* Pie y errores */
-.pie{margin-top:16px;text-align:center}
-.error{color:#b00020}
+/* Listas estilo “botones” */
+.list{list-style:none;margin:10px 0;padding:0}
+.list .item{
+  display:flex;justify-content:space-between;align-items:center;
+  background:#fff;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;margin-bottom:8px;font-weight:600;
+}
+.badge{font-weight:700}
 
-/* Iconos en blanco y negro (variante texto) */
-.ico,.nav-bottom .ico{ color:#111; font-weight:700; font-size:18px; }
+/* Mensajes */
+.error{ color:var(--error); margin-top:10px }
 
+/* ====== Barra inferior ====== */
+.nav-bottom{
+  position:fixed;left:0;right:0;bottom:0;background:#fff;
+  border-top:1px solid var(--line);
+  display:flex;justify-content:space-around;align-items:center;
+  padding:8px 10px;
+}
+.nav-item{display:flex;align-items:center;gap:6px;color:#1f2937;
+  text-decoration:none;font-weight:600;font-size:14px;}
+/* Emojis */
+.nav-item .ico{ filter: grayscale(1) contrast(1.6); font-size:18px; line-height:1; }
+
+/* Login */
+.login .title{ text-align:left; }
+
+/* Menú */
+.menu .top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.menu .top-row .hello{font-size:22px;font-weight:800;color:var(--navy)}
+.menu .top-row select{max-width:220px}
+
+/* Pago */
+.pay .metodos{display:flex;flex-direction:column;gap:8px}
+.pay .metodos .item{cursor:pointer}
+.pay .total{margin-top:8px;text-align:right;font-weight:800}
+
+/* Retiro */
+.pick .confirmar{margin-top:12px}
+
+/* Confirmación */
+.confirm .big-msg{font-size:26px;font-weight:800;color:var(--navy);text-align:center;margin-top:8px}

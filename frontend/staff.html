@@ -1,110 +1,237 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>UniEats - Staff</title>
-  <link rel="stylesheet" href="estilos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-<div id="app" class="login-wrap">
-  <div class="login-card">
-    <h1>Staff – Productos</h1>
+  <div id="app" class="page">
+    <!-- ================= Productos ================= -->
+    <div class="card">
+      <h1 class="title">Productos</h1>
 
-    <div class="item">
-      <input v-model="form.nombre"  placeholder="Nombre">
-      <input v-model.number="form.precio" type="number" placeholder="Precio">
-      <select v-model="form.categoria">
-       <option>comida</option>
-       <option>panificado</option>
-       <option>bebida</option>
-       <option>promo</option>
-      </select>
-      <button @click="guardar">{{ form.id ? 'Actualizar' : 'Agregar' }}</button>
-      <button v-if="form.id" @click="cancelar">Cancelar</button>
+      <!-- Formulario Alta/Edición -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:920px">
+        <div>
+          <label>Nombre</label>
+          <input v-model.trim="form.nombre" placeholder="Ej: Café chico">
+        </div>
+        <div>
+          <label>Precio</label>
+          <input v-model.number="form.precio" type="number" min="0" step="1" placeholder="Ej: 1200">
+        </div>
+        <div>
+          <label>Categoría</label>
+          <select v-model="form.categoria">
+            <option v-for="c in categorias" :key="c">{{ c }}</option>
+          </select>
+        </div>
+        <div>
+          <label>Universidad</label>
+          <select v-model="form.uni">
+            <option value="ucema">UCEMA</option>
+            <option value="generic">Otra</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn-primary" @click="guardar" :disabled="enviandoProd">
+          {{ enviandoProd ? 'Guardando…' : (form.id ? 'Actualizar' : 'Agregar') }}
+        </button>
+        <button class="btn-primary" style="background:#6b7280" @click="cancelarEdicion" :disabled="enviandoProd">
+          Cancelar
+        </button>
+      </div>
+      <p v-if="errorProd" class="error">{{ errorProd }}</p>
+
+      <!-- Filtros de vista -->
+      <div style="display:flex;gap:10px;align-items:center;margin-top:14px">
+        <label style="margin:0">Filtrar por:</label>
+        <select v-model="filtro.cat" style="max-width:180px">
+          <option value="">(todas las categorías)</option>
+          <option v-for="c in categorias" :key="c">{{ c }}</option>
+        </select>
+        <select v-model="filtro.uni" style="max-width:150px">
+          <option value="">(todas las unis)</option>
+          <option value="ucema">UCEMA</option>
+          <option value="generic">Otra</option>
+        </select>
+        <input v-model.trim="filtro.q" placeholder="Buscar nombre…" style="max-width:240px">
+        <span style="margin-left:auto;font-weight:700">Total: {{ productosFiltrados.length }}</span>
+      </div>
+
+      <!-- Lista de productos -->
+      <ul class="list" style="margin-top:10px">
+        <li class="item" v-for="p in productosFiltrados" :key="p.id">
+          <span>
+            <strong>#{{ p.id }}</strong> — {{ p.nombre }}
+            <small style="opacity:.7">[{{ p.categoria }} · {{ p.uni }}]</small>
+          </span>
+          <span>
+            <span class="badge">${{ p.precio }}</span>
+            <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click="editar(p)">Editar</button>
+            <button class="btn-primary" style="margin-left:6px;background:#b00020;padding:8px 10px"
+                    @click="borrar(p)" :disabled="enviandoProd">Borrar</button>
+          </span>
+        </li>
+      </ul>
     </div>
 
-    <ul class="lista">
-      <li class="item" v-for="p in productos" :key="p.id">
-        <span>#{{p.id}} — {{p.nombre}} ({{p.categoria}})</span>
-        <strong>\${{p.precio}}</strong>
-        <div>
-          <button @click="editar(p)">Editar</button>
-          <button @click="borrar(p.id)">Borrar</button>
-        </div>
-      </li>
-    </ul>
+    <!-- ================= Pedidos (Tablero) ================= -->
+    <div class="card">
+      <h1 class="title">Pedidos</h1>
 
-    <h1>Staff – Pedidos</h1>
-    <button @click="cargarPedidos">Actualizar</button>
+      <!-- Filtros -->
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label style="margin:0">Estado</label>
+        <select v-model="filtroPed.estado" style="max-width:180px" @change="cargarPedidos">
+          <option value="">(todos)</option>
+          <option value="pendiente">pendiente</option>
+          <option value="en_preparacion">en_preparacion</option>
+          <option value="listo">listo</option>
+        </select>
+        <label style="margin-left:8px;margin-right:0">Desde hora</label>
+        <input v-model="filtroPed.desde" placeholder="HH:MM (opcional)" style="max-width:130px">
+        <button class="btn-primary" style="padding:8px 12px" @click="cargarPedidos" :disabled="cargandoPed">
+          {{ cargandoPed ? 'Cargando…' : 'Actualizar' }}
+        </button>
+        <span style="margin-left:auto;font-weight:700">Total: {{ pedidos.length }}</span>
+      </div>
 
-    <ul class="lista">
-      <li class="item" v-for="pd in pedidos" :key="pd.id">
-        <div>
-          <strong>Pedido #{{pd.id}}</strong> — {{pd.estado}} / {{pd.pago}} — {{pd.hora || '-'}}
-          <div>Items: {{ (pd.items||[]).length }}</div>
-        </div>
-        <div>
-          <select v-model="pd.estado" @change="actualizarPedido(pd)">
-            <option>pendiente</option>
-            <option>creado</option>
-            <option>en_preparacion</option>
-            <option>listo</option>
-            <option>entregado</option>
-          </select>
-          <select v-model="pd.pago" @change="actualizarPedido(pd)">
-            <option>pendiente</option>
-            <option>confirmado</option>
-          </select>
-        </div>
-      </li>
-    </ul>
+      <!-- Lista -->
+      <ul class="list" style="margin-top:10px">
+        <li class="item" v-for="pd in pedidos" :key="pd.id">
+          <div style="display:flex;flex-direction:column">
+            <strong>Pedido #{{ pd.id }}</strong>
+            <small style="opacity:.75">
+              uni: {{ pd.uni || 'ucema' }} · estado: {{ pd.estado || 'pendiente' }} · pago: {{ pd.estado_pago || 'pendiente' }} · hora: {{ pd.hora_retiro || '-' }}
+            </small>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+            <button class="btn-primary" style="padding:8px 10px" @click="setEstado(pd,'en_preparacion')" :disabled="cargandoPed">Preparar</button>
+            <button class="btn-primary" style="padding:8px 10px" @click="setEstado(pd,'listo')" :disabled="cargandoPed">Listo</button>
+            <button class="btn-primary" style="padding:8px 10px;background:#0f766e" @click="setPago(pd,'confirmado')" :disabled="cargandoPed">Pago OK</button>
+          </div>
+        </li>
+      </ul>
+      <p v-if="errorPed" class="error">{{ errorPed }}</p>
+    </div>
 
-    <p v-if="error" class="error">{{error}}</p>
+    <nav class="nav-bottom">
+      <a class="nav-item" href="inicio.html"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
+      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+    </nav>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-new Vue({
-  el:'#app',
-  data:{
-    base:'http://127.0.0.1:4000',
-    productos:[], pedidos:[],
-    form:{id:null, nombre:'', precio:'', categoria:'comida'},
-    error:''
-  },
-  created(){ this.cargarProductos(); this.cargarPedidos(); },
-  methods:{
-    cargarProductos(){ axios.get(this.base+'/api/productos').then(r=> this.productos=r.data); },
-    guardar(){
-      this.error='';
-      const ok = this.form.nombre && this.form.precio && this.form.categoria;
-      if(!ok){ this.error='Completá nombre, precio y categoría'; return; }
-      if(this.form.id){
-        axios.put(this.base+'/api/productos/'+this.form.id, this.form)
-          .then(()=>{ this.cancelar(); this.cargarProductos(); })
-          .catch(()=> this.error='No se pudo actualizar');
-      }else{
-        axios.post(this.base+'/api/productos', this.form)
-          .then(()=>{ this.cancelar(); this.cargarProductos(); })
-          .catch(()=> this.error='No se pudo crear');
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+      el:'#app',
+      data:{
+        base:'http://127.0.0.1:4000',
+        /* Productos */
+        productos:[],
+        form:{ id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' },
+        categorias:['comida','panificado','bebida','promo'],
+        filtro:{ cat:'', uni:'', q:'' },
+        enviandoProd:false,
+        errorProd:'',
+
+        /* Pedidos */
+        pedidos:[],
+        filtroPed:{ estado:'', desde:'' },
+        cargandoPed:false,
+        errorPed:''
+      },
+      computed:{
+        productosFiltrados(){
+          return this.productos.filter(p=>{
+            const catOk = !this.filtro.cat || p.categoria===this.filtro.cat;
+            const uniOk = !this.filtro.uni || p.uni===this.filtro.uni;
+            const qOk   = !this.filtro.q || (p.nombre||'').toLowerCase().includes(this.filtro.q.toLowerCase());
+            return catOk && uniOk && qOk;
+          });
+        }
+      },
+      created(){
+        this.cargarProductos();
+        this.cargarPedidos();
+      },
+      methods:{
+        /* ===== Productos ===== */
+        cargarProductos(){
+          axios.get(this.base+'/api/productos')
+            .then(r=> this.productos = r.data || [])
+            .catch(()=> this.errorProd='No se pudo cargar la lista de productos.');
+        },
+        guardar(){
+          this.errorProd='';
+          if(!this.form.nombre || !this.form.precio){ this.errorProd='Completá nombre y precio.'; return; }
+          this.enviandoProd=true;
+
+          const data = {
+            nombre:this.form.nombre, precio:Number(this.form.precio)||0,
+            categoria:this.form.categoria, uni:this.form.uni
+          };
+
+          const req = this.form.id
+            ? axios.put(this.base+'/api/productos/'+this.form.id, data)
+            : axios.post(this.base+'/api/productos', data);
+
+          req.then(()=>{ this.cancelarEdicion(); this.cargarProductos(); })
+             .catch(()=> this.errorProd='No se pudo guardar el producto.')
+             .then(()=> this.enviandoProd=false);
+        },
+        editar(p){
+          this.form = { id:p.id, nombre:p.nombre, precio:p.precio, categoria:p.categoria, uni:p.uni||'ucema' };
+          window.scrollTo({top:0, behavior:'smooth'});
+        },
+        borrar(p){
+          if(!confirm('¿Eliminar "'+p.nombre+'"?')) return;
+          this.enviandoProd=true;
+          axios.delete(this.base+'/api/productos/'+p.id)
+            .then(()=> this.cargarProductos())
+            .catch(()=> this.errorProd='No se pudo borrar el producto.')
+            .then(()=> this.enviandoProd=false);
+        },
+        cancelarEdicion(){
+          this.form = { id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' };
+          this.errorProd='';
+        },
+
+        /* ===== Pedidos ===== */
+        cargarPedidos(){
+          this.errorPed=''; this.cargandoPed=true;
+          const q = [];
+          if(this.filtroPed.estado) q.push('estado='+encodeURIComponent(this.filtroPed.estado));
+          if(this.filtroPed.desde)  q.push('desde='+encodeURIComponent(this.filtroPed.desde));
+          const url = this.base+'/api/pedidos' + (q.length?('?'+q.join('&')):'');
+          axios.get(url)
+            .then(r=> this.pedidos = r.data || [])
+            .catch(()=> this.errorPed='No se pudo cargar pedidos.')
+            .then(()=> this.cargandoPed=false);
+        },
+        setEstado(pedido, estado){
+          this.cargandoPed=true; this.errorPed='';
+          axios.put(this.base+'/api/pedidos/'+pedido.id, {estado})
+            .then(()=> this.cargarPedidos())
+            .catch(()=> this.errorPed='No se pudo actualizar el estado.')
+            .then(()=> this.cargandoPed=false);
+        },
+        setPago(pedido, estado_pago){
+          this.cargandoPed=true; this.errorPed='';
+          axios.put(this.base+'/api/pedidos/'+pedido.id, {estado_pago})
+            .then(()=> this.cargarPedidos())
+            .catch(()=> this.errorPed='No se pudo actualizar el pago.')
+            .then(()=> this.cargandoPed=false);
+        }
       }
-    },
-    editar(p){ this.form = {id:p.id, nombre:p.nombre, precio:p.precio, categoria:p.categoria}; },
-    cancelar(){ this.form={id:null, nombre:'', precio:'', categoria:'comida'}; },
-    borrar(id){
-      axios.delete(this.base+'/api/productos/'+id)
-        .then(()=> this.cargarProductos())
-        .catch(()=> this.error='No se pudo borrar');
-    },
-    cargarPedidos(){ axios.get(this.base+'/api/pedidos').then(r=> this.pedidos=r.data); },
-    actualizarPedido(pd){
-      axios.put(this.base+'/api/pedidos/'+pd.id, {estado:pd.estado, pago:pd.pago})
-        .then(()=>{}) .catch(()=> this.error='No se pudo actualizar pedido');
-    }
-  }
-});
-</script>
+    });
+  </script>
 </body>
 </html>

@@ -1,26 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>UniEats - Confirmación</title>
-  <link rel="stylesheet" href="estilos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-<div id="app" class="login-wrap">
-  <div class="login-card" style="text-align:center">
-    <img src="img/logo.png" alt="UniEats" class="logo">
-    <h1>¡Tu pedido ha sido realizado con éxito!</h1>
-    <p class="pie">¡Gracias por usar UniEats!</p>
-  </div>
+  <div class="page confirm">
+    <div class="card" style="text-align:center">
+      <img src="img/logo.png" class="logo" alt="UniEats" />
+      <h2 class="brand"><span class="brand-uni">Uni</span><span class="brand-e">E</span>ats</h2>
+      <div class="big-msg">¡Tu pedido ha sido realizado con éxito!</div>
+      <p>¡Gracias por tu confianza!</p>
+    </div>
 
-  <div class="nav-bottom">
-    <span class="ico">📋︎</span><span> Mis Pedidos</span>
-    <span class="ico">🔔︎</span><span> Notificaciones</span>
-    <span class="ico">👤︎</span><span> Mi Perfil</span>
+    <nav class="nav-bottom">
+      <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
+      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+    </nav>
   </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script>new Vue({ el:'#app' });</script>
 </body>
 </html>

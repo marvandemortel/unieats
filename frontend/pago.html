@@ -1,38 +1,65 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>UniEats - Método de pago</title>
-  <link rel="stylesheet" href="estilos.css">
+  <meta charset="UTF-8" />
+  <title>UniEats - Pago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-<div id="app">
-  <h1>Método de pago</h1>
+  <div id="app" class="page pay">
+    <div class="card">
+      <h1 class="title">Método de pago</h1>
 
-  <button class="btn-opcion" @click="elegir('mp')">🧾 Mercado Pago</button>
-  <button class="btn-opcion" @click="elegir('efectivo')">💵 Efectivo (presencial)</button>
-  <button class="btn-opcion" @click="elegir('tarjeta')">💳 Tarjeta</button>
+      <ul class="list">
+        <li class="item" v-for="it in carrito" :key="it.id">
+          <span>{{ it.nombre }}</span>
+          <span class="badge">${{ it.precio }}</span>
+        </li>
+      </ul>
+      <div class="total">Total: ${{ total }}</div>
 
-  <div class="nav-bottom">
-    <span class="ico">📋︎</span><span> Mis Pedidos</span>
-    <span class="ico">🔔︎</span><span> Notificaciones</span>
-    <span class="ico">👤︎</span><span> Mi Perfil</span>
+      <div class="metodos">
+        <div class="item" :class="{sel: metodo==='mp'}" @click="metodo='mp'">💳︎ Mercado Pago</div>
+        <div class="item" :class="{sel: metodo==='efectivo'}" @click="metodo='efectivo'">💵︎ Efectivo (presencial)</div>
+        <div class="item" :class="{sel: metodo==='tarjeta'}" @click="metodo='tarjeta'">💳︎ Tarjeta</div>
+      </div>
+
+      <button class="btn-primary btn-narrow" @click="continuar" :disabled="!metodo">
+        Continuar
+      </button>
+      <p v-if="error" class="error">{{ error }}</p>
+    </div>
+
+    <nav class="nav-bottom">
+      <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
+      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+    </nav>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script>
-function param(n){ return new URL(location.href).searchParams.get(n); }
-
-new Vue({
-  el:'#app',
-  data:{ uni:param('uni')||'ucema', pedido:param('pedido') },
-  methods:{
-    elegir(metodo){
-      window.location='retiro.html?uni='+this.uni+'&pedido='+this.pedido+'&pago='+metodo;
-    }
-  }
-});
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    function param(n){ return new URL(location.href).searchParams.get(n); }
+    new Vue({
+      el:'#app',
+      data:{ uni:param('uni')||'ucema', pedido:param('pedido')||'', carrito:[], metodo:'', error:'' },
+      computed:{
+        total(){ return this.carrito.reduce((a,b)=>a+(b.precio||0),0); }
+      },
+      created(){
+        this.carrito = JSON.parse(localStorage.getItem('carrito')||'[]');
+      },
+      methods:{
+        continuar(){
+          const base='http://127.0.0.1:4000';
+          axios.put(base+'/api/pedidos/'+this.pedido,{metodo_pago:this.metodo, estado_pago:'pendiente'})
+          .catch(()=>{}) 
+          .then(()=> window.location='retiro.html?uni='+this.uni+'&pedido='+this.pedido);
+        }
+      }
+    });
+  </script>
 </body>
 </html>

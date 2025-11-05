@@ -1,89 +1,75 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>UniEats - Menú</title>
-  <link rel="stylesheet" href="estilos.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-<div id="app">
-  <h1>¡Bienvenida!</h1>
-
-  <label>MENÚ</label>
-  <select v-model="categoria">
-    <option value="">Todas</option>
-    <option value="comida">Comida</option>
-    <option value="panificado">Panificados</option>
-    <option value="bebida">Bebidas</option>
-    <option value="promo">Promos</option>
-  </select>
-
-  <ul class="lista">
-    <li v-for="p in filtrados" :key="p.id" class="item">
-      <div class="txt">
-        <span class="ico">{{ icono(p) }}</span>
-        <span>{{ p.nombre }} — ${{ p.precio }}</span>
+  <div id="app" class="page menu">
+    <div class="card">
+      <div class="top-row">
+        <div class="hello">¡Bienvenida!</div>
+        <div>
+          <label style="font-weight:700;margin:0 8px 0 0">MENÚ</label>
+          <select v-model="categoria">
+            <option value="">todo</option>
+            <option>comida</option>
+            <option>panificado</option>
+            <option>bebida</option>
+            <option>promo</option>
+          </select>
+        </div>
       </div>
-      <button @click="agregar(p.id)">Agregar</button>
-    </li>
-  </ul>
 
-  <div class="nav-bottom">
-    <span class="ico">📋︎</span><span> Mis Pedidos</span>
-    <span class="ico">🔔︎</span><span> Notificaciones</span>
-    <span class="ico">👤︎</span><span> Mi Perfil</span>
+      <ul class="list">
+        <li class="item" v-for="p in filtrados" :key="p.id">
+          <span>{{ p.nombre }}</span>
+          <span class="badge">${{ p.precio }}</span>
+        </li>
+      </ul>
+
+      <button class="btn-primary btn-narrow" v-if="productos.length" @click="irAPago">
+        Ir a pago
+      </button>
+    </div>
+
+    <nav class="nav-bottom">
+      <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
+      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+    </nav>
   </div>
-</div>
 
-<!-- Vue y Axios por CDN -->
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-function param(n){ return new URL(location.href).searchParams.get(n); }
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    function param(n){ return new URL(location.href).searchParams.get(n); }
 
-new Vue({
-  el:'#app',
-  data:{
-    uni: (param('uni')||'ucema').toLowerCase(),
-    pedido: param('pedido'),
-    categoria:'',
-    productos:[]
-  },
-  created(){ this.cargar(); },
-  computed:{
-    filtrados(){
-      if(!this.categoria) return this.productos;
-      return this.productos.filter(p=>p.categoria===this.categoria);
-    }
-  },
-  methods:{
-    cargar(){
-      const base='http://127.0.0.1:4000';
-      axios.get(base+'/api/productos?uni='+this.uni)
-        .then(r=> this.productos=r.data)
-        .catch(()=> alert('Error cargando menú'));
-    },
-    // Emojis B/N (variante texto): comida 🍽︎, panificado 🥐︎, bebidas ☕︎ si es café sino 🥤︎, promo ★
-    icono(p){
-      const nombre = (p.nombre||'').toLowerCase();
-      if(p.categoria==='comida')     return '🍽︎';
-      if(p.categoria==='panificado') return '🥐︎';
-      if(p.categoria==='bebida'){
-        if(nombre.indexOf('cafe')>-1 || nombre.indexOf('café')>-1 || nombre.indexOf('té')>-1 || nombre.indexOf('te ')===0) return '☕︎';
-        return '🥤︎';
+    new Vue({
+      el:'#app',
+      data:{ uni:param('uni')||'ucema', pedido:param('pedido')||'', productos:[], categoria:'' },
+      computed:{
+        filtrados(){
+          if(!this.categoria) return this.productos;
+          return this.productos.filter(p=>p.categoria===this.categoria);
+        }
+      },
+      created(){
+        const base='http://127.0.0.1:4000';
+        axios.get(base+'/api/productos?uni='+this.uni).then(r=>{
+          this.productos = r.data || [];
+          // Para coincidir con la maqueta: el “tap” agrega todos al carrito
+          localStorage.setItem('carrito', JSON.stringify(this.productos));
+        });
+      },
+      methods:{
+        irAPago(){
+          window.location='pago.html?uni='+this.uni+'&pedido='+this.pedido;
+        }
       }
-      if(p.categoria==='promo')      return '★';
-      return '◼︎';
-    },
-    agregar(producto_id){
-      const base='http://127.0.0.1:4000';
-      // si aún no tenés carrito/pedido armado, podés redirigir a carrito con este producto
-      axios.put(base+'/api/pedidos/'+this.pedido, { items:[{id:producto_id, cantidad:1}] })
-        .then(()=> window.location='pago.html?uni='+this.uni+'&pedido='+this.pedido+'&producto='+producto_id)
-        .catch(()=> alert('Error agregando'));
-    }
-  }
-});
-</script>
+    });
+  </script>
 </body>
 </html>
