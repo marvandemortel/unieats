@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>UniEats - Menú</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div id="app">
+  <h2>¡Bienvenida!</h2>
+
+  <label>Buscar</label>
+  <input v-model="q" @keyup="cargar" placeholder="Ej: café, ensalada...">
+
+  <label>Categoría</label>
+  <select v-model="categoria" @change="cargar">
+    <option value="">Todas</option>
+    <option>comida</option>
+    <option>panificado</option>
+    <option>bebida</option>
+    <option>promo</option>
+  </select>
+
+  <div v-if="cargando">Cargando...</div>
+  <div v-if="error" class="error">{{error}}</div>
+
+  <ul class="lista">
+    <li v-for="p in productos" :key="p.id" class="item">
+      <span>{{ p.nombre }} — ${{ p.precio }}</span>
+      <button @click="agregar(p.id)">Agregar</button>
+    </li>
+  </ul>
+
+  <div class="pie">
+    <a :href="`pago.html?uni=${uni}&pedido=${pedido}`">Finalizar pedido</a>
+  </div>
+
+  <div class="nav-bottom"><span>Mis Pedidos</span><span>Notificaciones</span><span>Mi Perfil</span></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+function param(n){ return new URL(location.href).searchParams.get(n); }
+new Vue({
+  el:'#app',
+  data:{ uni:param('uni')||'ucema', pedido:param('pedido'), q:'', categoria:'', productos:[], cargando:false, error:'' },
+  created(){ this.cargar(); },
+  methods:{
+    cargar(){
+      this.cargando=true; this.error='';
+      const base='http://127.0.0.1:4000/api/productos';
+      const url = `${base}?uni=${this.uni}` + (this.categoria?`&categoria=${this.categoria}`:'') + (this.q?`&q=${encodeURIComponent(this.q)}`:'');
+      axios.get(url).then(r=> this.productos=r.data).catch(()=> this.error='No se pudo cargar el menú').then(()=> this.cargando=false);
+    },
+    agregar(producto_id){
+      axios.put(`http://127.0.0.1:4000/api/pedidos/${this.pedido}`, {accion:'agregar_item', producto_id, cantidad:1})
+           .then(()=> alert('Agregado'))
+           .catch(()=> alert('Error agregando'));
+    }
+  }
+})
+</script>
+</body>
+</html>
