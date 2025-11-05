@@ -7,59 +7,78 @@
 </head>
 <body>
 <div id="app">
-  <h2>¡Bienvenida!</h2>
+  <h1>¡Bienvenido/a!</h1>
 
-  <label>Buscar</label>
-  <input v-model="q" @keyup="cargar" placeholder="Ej: café, ensalada...">
-
-  <label>Categoría</label>
-  <select v-model="categoria" @change="cargar">
+  <label>MENÚ</label>
+  <select v-model="categoria">
     <option value="">Todas</option>
-    <option>comida</option>
-    <option>panificado</option>
-    <option>bebida</option>
-    <option>promo</option>
+    <option value="comida">Comida</option>
+    <option value="bebida">Bebidas</option>
+    <option value="promo">Promos</option>
   </select>
 
-  <div v-if="cargando">Cargando...</div>
-  <div v-if="error" class="error">{{error}}</div>
-
   <ul class="lista">
-    <li v-for="p in productos" :key="p.id" class="item">
-      <span>{{ p.nombre }} — ${{ p.precio }}</span>
+    <li v-for="p in filtrados" :key="p.id" class="item">
+      <div class="txt">
+        <span class="ico">{{ icono(p) }}</span>
+        <span>{{ p.nombre }} — ${{ p.precio }}</span>
+      </div>
       <button @click="agregar(p.id)">Agregar</button>
     </li>
   </ul>
 
-  <div class="pie">
-    <a :href="`pago.html?uni=${uni}&pedido=${pedido}`">Finalizar pedido</a>
+  <div class="nav-bottom">
+    <span class="ico">📋︎</span><span> Mis Pedidos</span>
+    <span class="ico">🔔︎</span><span> Notificaciones</span>
+    <span class="ico">👤︎</span><span> Mi Perfil</span>
   </div>
-
-  <div class="nav-bottom"><span>Mis Pedidos</span><span>Notificaciones</span><span>Mi Perfil</span></div>
 </div>
 
+<!-- Visto en clase: Vue y Axios por CDN -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
 function param(n){ return new URL(location.href).searchParams.get(n); }
+
 new Vue({
   el:'#app',
-  data:{ uni:param('uni')||'ucema', pedido:param('pedido'), q:'', categoria:'', productos:[], cargando:false, error:'' },
+  data:{
+    uni:param('uni')||'ucema',
+    pedido:param('pedido'),
+    categoria:'',
+    productos:[]
+  },
   created(){ this.cargar(); },
+  computed:{
+    filtrados(){
+      if(!this.categoria) return this.productos;
+      return this.productos.filter(p=>p.categoria===this.categoria);
+    }
+  },
   methods:{
     cargar(){
-      this.cargando=true; this.error='';
-      const base='http://127.0.0.1:4000/api/productos';
-      const url = `${base}?uni=${this.uni}` + (this.categoria?`&categoria=${this.categoria}`:'') + (this.q?`&q=${encodeURIComponent(this.q)}`:'');
-      axios.get(url).then(r=> this.productos=r.data).catch(()=> this.error='No se pudo cargar el menú').then(()=> this.cargando=false);
+      const base='http://127.0.0.1:4000';
+      axios.get(base+'/api/productos?uni='+this.uni).then(r=> this.productos=r.data);
+    },
+    // ICONOS B/N: plato para "comida"; en "bebida" taza si dice café, sino vaso; promos estrella
+    icono(p){
+      const nombre = (p.nombre || '').toLowerCase();
+      if(p.categoria==='comida') return '🍽︎';     // plato con cubiertos (texto → B/N)
+      if(p.categoria==='bebida'){
+        if(nombre.indexOf('cafe')>-1 || nombre.indexOf('café')>-1) return '☕︎'; // taza
+        return '🥤︎'; // vaso/botella
+      }
+      if(p.categoria==='promo') return '★';
+      return '◼︎';
     },
     agregar(producto_id){
-      axios.put(`http://127.0.0.1:4000/api/pedidos/${this.pedido}`, {accion:'agregar_item', producto_id, cantidad:1})
-           .then(()=> alert('Agregado'))
-           .catch(()=> alert('Error agregando'));
+      const base='http://127.0.0.1:4000';
+      axios.put(base+'/api/pedidos/'+this.pedido,{producto_id})
+        .then(()=> window.location='pago.html?uni='+this.uni+'&pedido='+this.pedido+'&producto='+producto_id)
+        .catch(()=> alert('Error agregando'));
     }
   }
-})
+});
 </script>
 </body>
 </html>

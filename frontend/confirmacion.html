@@ -6,24 +6,21 @@
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-<div id="app" style="text-align:center">
-  <img src="img/logo.png" alt="UniEats" class="logo">
-  <h1>¡Tu pedido ha sido realizado con éxito!</h1>
-  <p>Pedido #{{ pedido }} — Retiro: {{ hora }}</p>
-  <p>¡Gracias por usar UniEats!</p>
+<div id="app" class="login-wrap">
+  <div class="login-card" style="text-align:center">
+    <img src="img/logo.png" alt="UniEats" class="logo">
+    <h1>¡Tu pedido ha sido realizado con éxito!</h1>
+    <p class="pie">¡Gracias por usar UniEats!</p>
+  </div>
 
   <div class="nav-bottom">
-    <span>Mis Pedidos</span><span>Notificaciones</span><span>Mi Perfil</span>
+    <span class="ico">📋︎</span><span> Mis Pedidos</span>
+    <span class="ico">🔔︎</span><span> Notificaciones</span>
+    <span class="ico">👤︎</span><span> Mi Perfil</span>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script>
-function param(n){ return new URL(location.href).searchParams.get(n); }
-new Vue({
-  el:'#app',
-  data:{ pedido:param('pedido'), hora:param('hora') || '-' }
-})
-</script>
+<script>new Vue({ el:'#app' });</script>
 </body>
 </html>
