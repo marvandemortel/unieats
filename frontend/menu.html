@@ -7,12 +7,13 @@
 </head>
 <body>
 <div id="app">
-  <h1>¡Bienvenido/a!</h1>
+  <h1>¡Bienvenida!</h1>
 
   <label>MENÚ</label>
   <select v-model="categoria">
     <option value="">Todas</option>
     <option value="comida">Comida</option>
+    <option value="panificado">Panificados</option>
     <option value="bebida">Bebidas</option>
     <option value="promo">Promos</option>
   </select>
@@ -34,7 +35,7 @@
   </div>
 </div>
 
-<!-- Visto en clase: Vue y Axios por CDN -->
+<!-- Vue y Axios por CDN -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
@@ -43,8 +44,8 @@ function param(n){ return new URL(location.href).searchParams.get(n); }
 new Vue({
   el:'#app',
   data:{
-    uni:param('uni')||'ucema',
-    pedido:param('pedido'),
+    uni: (param('uni')||'ucema').toLowerCase(),
+    pedido: param('pedido'),
     categoria:'',
     productos:[]
   },
@@ -58,22 +59,26 @@ new Vue({
   methods:{
     cargar(){
       const base='http://127.0.0.1:4000';
-      axios.get(base+'/api/productos?uni='+this.uni).then(r=> this.productos=r.data);
+      axios.get(base+'/api/productos?uni='+this.uni)
+        .then(r=> this.productos=r.data)
+        .catch(()=> alert('Error cargando menú'));
     },
-    // ICONOS B/N: plato para "comida"; en "bebida" taza si dice café, sino vaso; promos estrella
+    // Emojis B/N (variante texto): comida 🍽︎, panificado 🥐︎, bebidas ☕︎ si es café sino 🥤︎, promo ★
     icono(p){
-      const nombre = (p.nombre || '').toLowerCase();
-      if(p.categoria==='comida') return '🍽︎';     // plato con cubiertos (texto → B/N)
+      const nombre = (p.nombre||'').toLowerCase();
+      if(p.categoria==='comida')     return '🍽︎';
+      if(p.categoria==='panificado') return '🥐︎';
       if(p.categoria==='bebida'){
-        if(nombre.indexOf('cafe')>-1 || nombre.indexOf('café')>-1) return '☕︎'; // taza
-        return '🥤︎'; // vaso/botella
+        if(nombre.indexOf('cafe')>-1 || nombre.indexOf('café')>-1 || nombre.indexOf('té')>-1 || nombre.indexOf('te ')===0) return '☕︎';
+        return '🥤︎';
       }
-      if(p.categoria==='promo') return '★';
+      if(p.categoria==='promo')      return '★';
       return '◼︎';
     },
     agregar(producto_id){
       const base='http://127.0.0.1:4000';
-      axios.put(base+'/api/pedidos/'+this.pedido,{producto_id})
+      // si aún no tenés carrito/pedido armado, podés redirigir a carrito con este producto
+      axios.put(base+'/api/pedidos/'+this.pedido, { items:[{id:producto_id, cantidad:1}] })
         .then(()=> window.location='pago.html?uni='+this.uni+'&pedido='+this.pedido+'&producto='+producto_id)
         .catch(()=> alert('Error agregando'));
     }

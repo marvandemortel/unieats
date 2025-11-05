@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>UniEats - Carrito</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div id="app" class="login-wrap">
+  <div class="login-card">
+    <h1>Mi carrito</h1>
+    <p v-if="cargando">Cargando…</p>
+    <p v-if="error" class="error">{{ error }}</p>
+
+    <ul class="lista">
+      <li class="item" v-for="it in pedido.items" :key="it.id">
+        <span>{{ nombreDe(it.id) }} × {{ it.cantidad }}</span>
+        <strong>\${{ precioDe(it.id) * it.cantidad }}</strong>
+      </li>
+    </ul>
+
+    <p class="bienvenida">Total: <strong>\${{ total }}</strong></p>
+
+    <label for="hora">¿A qué hora retirás?</label>
+    <select id="hora" v-model="hora">
+      <option v-for="h in horas" :key="h">{{ h }}</option>
+    </select>
+
+    <button @click="confirmar" :disabled="enviando">{{ enviando ? 'Confirmando…' : 'Confirmar pedido' }}</button>
+  </div>
+
+  <div class="nav-bottom">
+    <span class="ico">📋︎</span><span> Mis Pedidos</span>
+    <span class="ico">🔔︎</span><span> Notificaciones</span>
+    <span class="ico">👤︎</span><span> Mi Perfil</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+function param(n){ return new URL(location.href).searchParams.get(n); }
+new Vue({
+  el:'#app',
+  data:{ base:'http://127.0.0.1:4000', pedido:{items:[]}, productos:[], cargando:true, error:'', hora:'10:00', horas:[], enviando:false },
+  created(){
+    this.horas = this.genHoras();
+    axios.get(this.base + '/api/productos').then(r=> this.productos = r.data);
+    const id = param('pedido');
+    axios.get(this.base + '/api/pedidos/' + id)
+      .then(r=> this.pedido = r.data)
+      .catch(()=> this.error='No se pudo cargar el pedido')
+      .then(()=> this.cargando=false);
+  },
+  computed:{
+    total(){
+      const precios = {}; this.productos.forEach(p=> precios[p.id]=p.precio);
+      return (this.pedido.items||[]).reduce((ac,it)=> ac + (precios[it.id]||0)*it.cantidad, 0);
+    }
+  },
+  methods:{
+    nombreDe(id){ const p=this.productos.find(x=>x.id===id); return p? p.nombre : ('#'+id); },
+    precioDe(id){ const p=this.productos.find(x=>x.id===id); return p? p.precio : 0; },
+    genHoras(){
+      const res=[]; let h=10, m=0;
+      while(h<20 || (h===20 && m===0)){ res.push((h+'').padStart(2,'0') + ':' + (m+'').padStart(2,'0')); m+=15; if(m===60){m=0;h++;} }
+      return res;
+    },
+    confirmar(){
+      this.enviando=true;
+      axios.put(this.base + '/api/pedidos/' + this.pedido.id, { hora:this.hora, estado:'creado' })
+        .then(()=> location.href = 'pago.html?pedido='+this.pedido.id+'&hora='+encodeURIComponent(this.hora))
+        .catch(()=> this.error='No se pudo confirmar')
+        .then(()=> this.enviando=false);
+    }
+  }
+});
+</script>
+</body>
+</html>
