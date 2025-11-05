@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>UniEats - Método de pago</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div id="app">
+  <h2>Método de pago</h2>
+
+  <p><b>Pedido #{{ pedido }}</b></p>
+  <p v-if="cargando">Cargando total…</p>
+  <p v-if="error" class="error">{{ error }}</p>
+  <p v-if="!cargando && !error">Total estimado: ${{ total }}</p>
+
+  <!-- Opciones de pago -->
+  <button @click="pagar('mercado_pago')">Mercado Pago</button>
+  <button @click="pagar('efectivo')">Efectivo (presencial)</button>
+  <button @click="pagar('tarjeta')">Tarjeta</button>
+
+  <div class="nav-bottom">
+    <span>Mis Pedidos</span><span>Notificaciones</span><span>Mi Perfil</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+function param(n){ return new URL(location.href).searchParams.get(n); }
+
+new Vue({
+  el:'#app',
+  data:{ uni:param('uni')||'ucema', pedido:param('pedido'), total:0, cargando:true, error:'' },
+  created(){ this.calcularTotal(); },
+  methods:{
+    calcularTotal(){
+      const base = 'http://127.0.0.1:4000';
+      // Traigo el pedido y los productos para sumar los precios
+      Promise.all([
+        axios.get(`${base}/api/pedidos/${this.pedido}`),
+        axios.get(`${base}/api/productos?uni=${this.uni}`)
+      ])
+      .then(([pedidoRes, prodsRes])=>{
+        const ped = pedidoRes.data;
+        const prods = prodsRes.data;
+        let suma = 0;
+        for (let i=0;i<ped.items.length;i++){
+          const it = ped.items[i];
+          // busco el producto por id
+          for (let j=0;j<prods.length;j++){
+            if (prods[j].id === it.producto_id){
+              suma += prods[j].precio * it.cantidad;
+            }
+          }
+        }
+        this.total = suma;
+      })
+      .catch(()=> this.error='No se pudo calcular el total')
+      .then(()=> this.cargando=false);
+    },
+    pagar(metodo){
+      // Consideramos pagado para MP y tarjeta; efectivo queda pendiente
+      const estadoPago = (metodo==='efectivo') ? 'pendiente' : 'pagado';
+      axios.put(`http://127.0.0.1:4000/api/pedidos/${this.pedido}`, { pago: estadoPago })
+        .then(()=>{
+          // Seleccionar horario
+          window.location = `retiro.html?uni=${this.uni}&pedido=${this.pedido}`;
+        })
+        .catch(()=> alert('No se pudo registrar el pago'));
+    }
+  }
+})
+</script>
+</body>
+</html>

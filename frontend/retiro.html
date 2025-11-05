@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>UniEats - Retiro de pedido</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div id="app">
+  <h2>¿A qué hora te gustaría retirar tu pedido?</h2>
+
+  <div v-if="error" class="error">{{ error }}</div>
+
+  <ul class="lista">
+    <li v-for="h in horarios" :key="h" class="item">
+      <span>{{ h }}</span>
+      <button @click="confirmar(h)">Elegir</button>
+    </li>
+  </ul>
+
+  <button @click="confirmar(horarioSugerido)">Confirmar ({{ horarioSugerido }})</button>
+
+  <div class="nav-bottom">
+    <span>Mis Pedidos</span><span>Notificaciones</span><span>Mi Perfil</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+function param(n){ return new URL(location.href).searchParams.get(n); }
+
+new Vue({
+  el:'#app',
+  data:{
+    uni: param('uni')||'ucema',
+    pedido: param('pedido'),
+    horarios: ['10:00','10:15','10:30','10:45','11:00','11:15','11:30'],
+    horarioSugerido: '10:00',
+    error:''
+  },
+  methods:{
+    confirmar(hora){
+      axios.put(`http://127.0.0.1:4000/api/pedidos/${this.pedido}`, {
+        hora_retiro: hora,
+        estado: 'en_preparacion'
+      })
+      .then(()=>{
+        window.location = `confirmacion.html?uni=${this.uni}&pedido=${this.pedido}&hora=${encodeURIComponent(hora)}`;
+      })
+      .catch(()=> this.error='No se pudo fijar el horario');
+    }
+  }
+})
+</script>
+</body>
+</html>
