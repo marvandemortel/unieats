@@ -14,7 +14,10 @@
       <input v-model="form.nombre"  placeholder="Nombre">
       <input v-model.number="form.precio" type="number" placeholder="Precio">
       <select v-model="form.categoria">
-        <option>comida</option><option>bebida</option><option>promo</option>
+       <option>comida</option>
+       <option>panificado</option>
+       <option>bebida</option>
+       <option>promo</option>
       </select>
       <button @click="guardar">{{ form.id ? 'Actualizar' : 'Agregar' }}</button>
       <button v-if="form.id" @click="cancelar">Cancelar</button>
