@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>UniEats - Mi pedido</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div id="app" class="login-wrap">
+  <div class="login-card">
+    <h1>Mi pedido</h1>
+    <p v-if="error" class="error">{{ error }}</p>
+
+    <p><strong>ID:</strong> {{ pedido.id }}</p>
+    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+    <p><strong>Pago:</strong> {{ pedido.pago }}</p>
+    <p><strong>Hora:</strong> {{ pedido.hora || '-' }}</p>
+
+    <ul class="lista">
+      <li class="item" v-for="it in pedido.items" :key="it.id">
+        <span>{{ nombreDe(it.id) }} × {{ it.cantidad }}</span>
+      </li>
+    </ul>
+
+    <button @click="recargar">Refrescar</button>
+  </div>
+
+  <div class="nav-bottom">
+    <span class="ico">📋︎</span><span> Mis Pedidos</span>
+    <span class="ico">🔔︎</span><span> Notificaciones</span>
+    <span class="ico">👤︎</span><span> Mi Perfil</span>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+function param(n){ return new URL(location.href).searchParams.get(n); }
+new Vue({
+  el:'#app',
+  data:{ base:'http://127.0.0.1:4000', pedido:{items:[]}, productos:[], error:'' },
+  created(){
+    axios.get(this.base + '/api/productos').then(r=> this.productos=r.data);
+    this.recargar();
+  },
+  methods:{
+    recargar(){
+      axios.get(this.base + '/api/pedidos/' + param('pedido'))
+        .then(r=> this.pedido=r.data)
+        .catch(()=> this.error='No se pudo cargar el pedido');
+    },
+    nombreDe(id){ const p=this.productos.find(x=>x.id===id); return p? p.nombre : ('#'+id); }
+  }
+});
+</script>
+</body>
+</html>
