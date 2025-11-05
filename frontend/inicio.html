@@ -8,6 +8,7 @@
 <body>
 <div id="app" class="login-wrap">
   <div class="login-card">
+    <!-- Logo redondo (tu archivo: frontend/img/logo.png) -->
     <img src="img/logo.png" alt="UniEats" class="logo">
 
     <h1>Iniciar sesión</h1>
@@ -15,13 +16,16 @@
     <label for="email">Email</label>
     <input id="email" type="email" v-model="email" placeholder="nombre@ucema.edu.ar">
 
+    <!-- Bienvenida con UNI en mayúsculas -->
     <p class="bienvenida">{{ uni.toUpperCase() }} — ¡Bienvenido/a a UniEats! ¿Qué desea pedir hoy?</p>
 
     <label for="uni">Universidad</label>
     <select id="uni" v-model="uni">
-      <option>UCEMA</option><option>UBA</option><option>ITBA</option><option>Austral</option>
+      <option>UCEMA</option>
+      <option>Otra</option>
     </select>
 
+    <!-- Botón azul oscuro (está estilizado en estilos.css) -->
     <button @click="iniciar" :disabled="cargando">
       {{ cargando ? 'Creando pedido…' : 'Iniciar sesión' }}
     </button>
@@ -29,6 +33,7 @@
     <p v-if="error" class="error">{{ error }}</p>
   </div>
 
+  <!-- Barra inferior (emojis B/N) -->
   <div class="nav-bottom">
     <span class="ico">📋︎</span><span> Mis Pedidos</span>
     <span class="ico">🔔︎</span><span> Notificaciones</span>
@@ -36,6 +41,7 @@
   </div>
 </div>
 
+<!-- Vue y Axios por CDN (visto en clase) -->
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
@@ -45,14 +51,23 @@ new Vue({
   methods:{
     iniciar(){
       this.error='';
-      if(!this.email || this.email.indexOf('@')===-1){ this.error='Ingresá un email válido.'; return; }
+      if(!this.email || this.email.indexOf('@')===-1){
+        this.error='Ingresá un email válido.'; 
+        return;
+      }
       this.cargando=true;
       const base='http://127.0.0.1:4000';
-      axios.post(base+'/login',{username:this.email,password:'ok'})
-      .then(()=> axios.post(base+'/api/pedidos',{uni:this.uni.toLowerCase()}))
-      .then(r=>{ const id=r.data.id; window.location='menu.html?uni='+this.uni.toLowerCase()+'&pedido='+id; })
-      .catch(()=> this.error='No se pudo iniciar. Probá de nuevo.')
-      .then(()=> this.cargando=false);
+
+      // Login simple, se acepta cualquier password no vacío en el backend
+      axios.post(base+'/login',{ username:this.email, password:'ok' })
+        .then(()=> axios.post(base+'/api/pedidos',{ uni:this.uni.toLowerCase() }))
+        .then(r=>{
+          const id = r.data.id; // id del pedido creado
+          // Ir al menú con parámetros de uni y pedido
+          window.location = 'menu.html?uni=' + this.uni.toLowerCase() + '&pedido=' + id;
+        })
+        .catch(()=> { this.error='No se pudo iniciar. Probá de nuevo.'; })
+        .then(()=> { this.cargando=false; });
     }
   }
 });
