@@ -1,111 +1,131 @@
-/* ====== Tema UniEats ====== */
+/* ================== Variables y base ================== */
 :root{
-  --bg:#eaf4ff;          
-  --navy:#173a77;        
-  --navy-600:#1e458e;    
-  --line:#cbd5e1;        
-  --card:#ffffff;        
-  --error:#b00020;       
-  --brand-e:#3fb1ff;     
+  --bg: #eaf4ff;        
+  --azul: #0d1b3d;     
+  --azul-oscuro: #173a77;  
+  --azul-borde: #cbd5e1;   
+  --azul-claro: #15bfd0;   
+  --white: #fff;
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
+*{ box-sizing: border-box; }
+html, body { height: 100%; }
 body{
   font-family: Arial, Helvetica, sans-serif;
   background: var(--bg);
-  margin:0;
-  color:#0d1b3d;
+  color: var(--azul);
+  margin: 0;
 }
 
-/* ====== Layout ====== */
-.page{
-  min-height:100%;
-  display:flex;
-  flex-direction:column;
-  padding:24px 16px 84px; 
-}
-
+/* ================== Tarjetas, listas y página ================== */
+.page{ max-width: 980px; margin: 0 auto; padding: 20px; }
 .card{
-  max-width:720px;
-  margin:36px auto 0;
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:24px;
-  box-shadow: 0 6px 18px rgba(0,0,0,.04);
+  background: var(--white);
+  border: 1px solid var(--azul-borde);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(13,27,61,.06);
 }
 
-/* ====== Encabezados ====== */
+/* ================== Login ================== */
+.login-wrap{
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.login-card{
+  width: 360px;                 
+  background: var(--white);
+  border: 1px solid var(--azul-borde);
+  border-radius: 16px;
+  padding: 18px 18px 22px;
+  box-shadow: 0 8px 24px rgba(13,27,61,.1);
+}
 .logo{
-  width:140px;height:140px;border-radius:50%;
-  display:block;margin:0 auto 10px;
-  border:4px solid #e8f0fe;background:#fff;object-fit:cover;
+  width: 120px;
+  height: 120px;
+  display: block;
+  margin: 6px auto 4px;
 }
-
 .brand{
-  text-align:center;margin:0 0 8px;
-  font-size:28px;letter-spacing:.4px;font-weight:800;color:var(--navy);
+  text-align: center;
+  margin: 6px 0 2px;
+  font-size: 28px;
+  color: var(--azul);
+  font-weight: 800;
 }
-.brand-e{ color: var(--brand-e); }
-h1.title{font-size:28px;margin:8px 0 16px;color:var(--navy);}
-
-/* ====== Controles ====== */
-label{display:block;margin:10px 0 6px}
-input,select{
-  width:100%;padding:12px 14px;border:1px solid var(--line);
-  border-radius:10px;background:#f8fafc;outline:none;
+.brand-e{ color: var(--azul-claro); }
+.login-title{
+  text-align: center;
+  margin: 0 0 12px;
+  color: var(--azul);
 }
-input:focus, select:focus{ border-color: var(--navy); }
 
-/* Botón principal */
+/* ================== Formularios ================== */
+label{ display:block; margin:8px 0 4px; font-weight:bold; }
+input, select, button{
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border: 1px solid var(--azul-borde);
+  border-radius: 8px;
+  font-size: 14px;
+}
+input::placeholder{ color: #9aa6b2; }
+
+/* Botón primario */
 .btn-primary{
-  background:var(--navy);color:#fff;border:none;font-weight:700;
-  padding:12px 16px;border-radius:10px;transition:.2s ease;display:block;
+  background: var(--azul-oscuro);
+  color: var(--white);
+  border: none;
+  font-weight: bold;
 }
-.btn-primary:hover{ background:var(--navy-600); cursor:pointer; }
-.btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
-.btn-narrow{ max-width:340px;width:100%;margin:14px auto 0; }
+.btn-primary:hover{ opacity: .95; cursor: pointer; }
+.btn-primary:disabled{ opacity: .6; cursor: not-allowed; }
 
-/* Listas estilo “botones” */
-.list{list-style:none;margin:10px 0;padding:0}
-.list .item{
-  display:flex;justify-content:space-between;align-items:center;
-  background:#fff;border:1px solid var(--line);border-radius:10px;
-  padding:12px 14px;margin-bottom:8px;font-weight:600;
+/* Botón más angosto para login */
+.btn-narrow{
+  max-width: 220px;     
+  margin: 10px auto 0;
+  display: block;
 }
-.badge{font-weight:700}
 
-/* Mensajes */
-.error{ color:var(--error); margin-top:10px }
+/* ================== Listas y items ================== */
+.lista{ list-style:none; padding:0; margin:10px 0; }
+.item{
+  display:flex; justify-content:space-between; align-items:center;
+  background: var(--white);
+  border: 1px solid var(--azul-borde);
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
 
-/* ====== Barra inferior ====== */
+/* ================== Barra inferior ================== */
 .nav-bottom{
-  position:fixed;left:0;right:0;bottom:0;background:#fff;
-  border-top:1px solid var(--line);
-  display:flex;justify-content:space-around;align-items:center;
-  padding:8px 10px;
+  position:fixed; left:0; right:0; bottom:0;
+  background: var(--white);
+  border-top: 1px solid var(--azul-borde);
+  padding: 8px 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  font-size: 14px;
 }
-.nav-item{display:flex;align-items:center;gap:6px;color:#1f2937;
-  text-decoration:none;font-weight:600;font-size:14px;}
-/* Emojis */
-.nav-item .ico{ filter: grayscale(1) contrast(1.6); font-size:18px; line-height:1; }
+.nav-link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;               
+  color: var(--azul);
+  text-decoration: none;
+}
+.nav-ico{ filter: grayscale(100%); }  
 
-/* Login */
-.login .title{ text-align:left; }
+/* ================== Mensajes ================== */
+.pie{ margin-top: 16px; text-align: center; }
+.error{ color: #b00020; }
 
-/* Menú */
-.menu .top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.menu .top-row .hello{font-size:22px;font-weight:800;color:var(--navy)}
-.menu .top-row select{max-width:220px}
-
-/* Pago */
-.pay .metodos{display:flex;flex-direction:column;gap:8px}
-.pay .metodos .item{cursor:pointer}
-.pay .total{margin-top:8px;text-align:right;font-weight:800}
-
-/* Retiro */
-.pick .confirmar{margin-top:12px}
-
-/* Confirmación */
-.confirm .big-msg{font-size:26px;font-weight:800;color:var(--navy);text-align:center;margin-top:8px}
+/* (Compat) estilos previos que usabas en prototipos */
+h1,h2{ color: var(--azul); margin:10px 0; }
