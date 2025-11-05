@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>UniEats - Staff</title>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<div id="app" class="login-wrap">
+  <div class="login-card">
+    <h1>Staff – Productos</h1>
+
+    <div class="item">
+      <input v-model="form.nombre"  placeholder="Nombre">
+      <input v-model.number="form.precio" type="number" placeholder="Precio">
+      <select v-model="form.categoria">
+        <option>comida</option><option>bebida</option><option>promo</option>
+      </select>
+      <button @click="guardar">{{ form.id ? 'Actualizar' : 'Agregar' }}</button>
+      <button v-if="form.id" @click="cancelar">Cancelar</button>
+    </div>
+
+    <ul class="lista">
+      <li class="item" v-for="p in productos" :key="p.id">
+        <span>#{{p.id}} — {{p.nombre}} ({{p.categoria}})</span>
+        <strong>\${{p.precio}}</strong>
+        <div>
+          <button @click="editar(p)">Editar</button>
+          <button @click="borrar(p.id)">Borrar</button>
+        </div>
+      </li>
+    </ul>
+
+    <h1>Staff – Pedidos</h1>
+    <button @click="cargarPedidos">Actualizar</button>
+
+    <ul class="lista">
+      <li class="item" v-for="pd in pedidos" :key="pd.id">
+        <div>
+          <strong>Pedido #{{pd.id}}</strong> — {{pd.estado}} / {{pd.pago}} — {{pd.hora || '-'}}
+          <div>Items: {{ (pd.items||[]).length }}</div>
+        </div>
+        <div>
+          <select v-model="pd.estado" @change="actualizarPedido(pd)">
+            <option>pendiente</option>
+            <option>creado</option>
+            <option>en_preparacion</option>
+            <option>listo</option>
+            <option>entregado</option>
+          </select>
+          <select v-model="pd.pago" @change="actualizarPedido(pd)">
+            <option>pendiente</option>
+            <option>confirmado</option>
+          </select>
+        </div>
+      </li>
+    </ul>
+
+    <p v-if="error" class="error">{{error}}</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+new Vue({
+  el:'#app',
+  data:{
+    base:'http://127.0.0.1:4000',
+    productos:[], pedidos:[],
+    form:{id:null, nombre:'', precio:'', categoria:'comida'},
+    error:''
+  },
+  created(){ this.cargarProductos(); this.cargarPedidos(); },
+  methods:{
+    cargarProductos(){ axios.get(this.base+'/api/productos').then(r=> this.productos=r.data); },
+    guardar(){
+      this.error='';
+      const ok = this.form.nombre && this.form.precio && this.form.categoria;
+      if(!ok){ this.error='Completá nombre, precio y categoría'; return; }
+      if(this.form.id){
+        axios.put(this.base+'/api/productos/'+this.form.id, this.form)
+          .then(()=>{ this.cancelar(); this.cargarProductos(); })
+          .catch(()=> this.error='No se pudo actualizar');
+      }else{
+        axios.post(this.base+'/api/productos', this.form)
+          .then(()=>{ this.cancelar(); this.cargarProductos(); })
+          .catch(()=> this.error='No se pudo crear');
+      }
+    },
+    editar(p){ this.form = {id:p.id, nombre:p.nombre, precio:p.precio, categoria:p.categoria}; },
+    cancelar(){ this.form={id:null, nombre:'', precio:'', categoria:'comida'}; },
+    borrar(id){
+      axios.delete(this.base+'/api/productos/'+id)
+        .then(()=> this.cargarProductos())
+        .catch(()=> this.error='No se pudo borrar');
+    },
+    cargarPedidos(){ axios.get(this.base+'/api/pedidos').then(r=> this.pedidos=r.data); },
+    actualizarPedido(pd){
+      axios.put(this.base+'/api/pedidos/'+pd.id, {estado:pd.estado, pago:pd.pago})
+        .then(()=>{}) .catch(()=> this.error='No se pudo actualizar pedido');
+    }
+  }
+});
+</script>
+</body>
+</html>
