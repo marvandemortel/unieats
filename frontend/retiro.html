@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-  <div id="app" class="page pick">
+  <div id="app" class="page">
     <div class="card">
-      <h1 class="title" style="text-align:center">¿A qué hora te gustaría retirar tu pedido?</h1>
+      <h1 class="title" style="text-align:center;margin:6px 0 12px;color:#173a77">¿A qué hora te gustaría retirar tu pedido?</h1>
 
       <ul class="list">
         <li class="item" v-for="h in horarios" :key="h" @click="hora=h" :style="(hora===h)?'border-color:#173a77':''">
@@ -18,7 +18,7 @@
         </li>
       </ul>
 
-      <button class="btn-primary btn-narrow confirmar" @click="confirmar" :disabled="!hora">
+      <button class="btn-primary" style="max-width:220px;margin:10px auto 0;display:block" @click="confirmar" :disabled="!hora">
         Confirmar
       </button>
       <p v-if="error" class="error">{{ error }}</p>
@@ -32,16 +32,14 @@
   </div>
 
   <script>
-  const UE_USER = localStorage.getItem('ue_user');
-  if (!UE_USER) { window.location = 'inicio.html'; }
-</script>
-
+    const UE_USER = localStorage.getItem('ue_user');
+    if (!UE_USER) { window.location = 'inicio.html'; }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     function param(n){ return new URL(location.href).searchParams.get(n); }
     function genHoras(){
-      // 10:00 a 20:00 cada 15 min
       const out=[], pad=n=>String(n).padStart(2,'0');
       for(let h=10; h<=20; h++){
         for(let m of [0,15,30,45]){
@@ -51,19 +49,18 @@
       }
       return out;
     }
-
     new Vue({
       el:'#app',
-      data:{ uni:param('uni')||'ucema', pedido:param('pedido')||'', horarios:genHoras(), hora:'', error:'' },
+      data:{ base:'http://127.0.0.1:4000', uni:(param('uni')||'ucema'), pedido:(param('pedido')||''), horarios:genHoras(), hora:'', error:'' },
       methods:{
         confirmar(){
-          const base='http://127.0.0.1:4000';
-          axios.put(base+'/api/pedidos/'+this.pedido,{hora_retiro:this.hora, estado:'pendiente'})
-          .catch(()=>{}) 
-          .then(()=> window.location='confirmacion.html?pedido='+this.pedido);
+          axios.put(this.base+'/api/pedidos/'+this.pedido,{ hora:this.hora })
+            .then(()=> window.location='confirmacion.html?pedido='+this.pedido)
+            .catch(()=> this.error='No se pudo confirmar');
         }
       }
     });
   </script>
 </body>
 </html>
+

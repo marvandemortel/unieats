@@ -7,25 +7,25 @@
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-  <div id="app" class="page pay">
+  <div id="app" class="page">
     <div class="card">
-      <h1 class="title">Método de pago</h1>
+      <h1 class="title" style="margin:6px 0 12px;color:#173a77">Método de pago</h1>
 
       <ul class="list">
         <li class="item" v-for="it in carrito" :key="it.id">
           <span>{{ it.nombre }}</span>
-          <span class="badge">${{ it.precio }}</span>
+          <span class="badge">\${{ it.precio }}</span>
         </li>
       </ul>
-      <div class="total">Total: ${{ total }}</div>
+      <div class="badge" style="text-align:right">Total: \${{ total }}</div>
 
-      <div class="metodos">
+      <div class="list" style="margin-top:12px">
         <div class="item" :class="{sel: metodo==='mp'}" @click="metodo='mp'">💳︎ Mercado Pago</div>
         <div class="item" :class="{sel: metodo==='efectivo'}" @click="metodo='efectivo'">💵︎ Efectivo (presencial)</div>
         <div class="item" :class="{sel: metodo==='tarjeta'}" @click="metodo='tarjeta'">💳︎ Tarjeta</div>
       </div>
 
-      <button class="btn-primary btn-narrow" @click="continuar" :disabled="!metodo">
+      <button class="btn-primary" style="max-width:220px;margin:10px auto 0;display:block" @click="continuar" :disabled="!metodo">
         Continuar
       </button>
       <p v-if="error" class="error">{{ error }}</p>
@@ -37,33 +37,29 @@
       <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
     </nav>
   </div>
-<script>
-  const UE_USER = localStorage.getItem('ue_user');
-  if (!UE_USER) { window.location = 'inicio.html'; }
-</script>
 
+  <script>
+    const UE_USER = localStorage.getItem('ue_user');
+    if (!UE_USER) { window.location = 'inicio.html'; }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
     function param(n){ return new URL(location.href).searchParams.get(n); }
     new Vue({
       el:'#app',
-      data:{ uni:param('uni')||'ucema', pedido:param('pedido')||'', carrito:[], metodo:'', error:'' },
-      computed:{
-        total(){ return this.carrito.reduce((a,b)=>a+(b.precio||0),0); }
-      },
-      created(){
-        this.carrito = JSON.parse(localStorage.getItem('carrito')||'[]');
-      },
+      data:{ base:'http://127.0.0.1:4000', uni:(param('uni')||'ucema'), pedido:(param('pedido')||''), carrito:[], metodo:'', error:'' },
+      computed:{ total(){ return this.carrito.reduce((a,b)=>a+(b.precio||0),0); } },
+      created(){ this.carrito = JSON.parse(localStorage.getItem('carrito')||'[]'); },
       methods:{
         continuar(){
-          const base='http://127.0.0.1:4000';
-          axios.put(base+'/api/pedidos/'+this.pedido,{metodo_pago:this.metodo, estado_pago:'pendiente'})
-          .catch(()=>{}) 
-          .then(()=> window.location='retiro.html?uni='+this.uni+'&pedido='+this.pedido);
+          axios.put(this.base+'/api/pedidos/'+this.pedido,{ pago:this.metodo, estado:'pendiente' })
+            .then(()=> window.location='retiro.html?uni='+this.uni+'&pedido='+this.pedido)
+            .catch(()=> this.error='No se pudo continuar');
         }
       }
     });
   </script>
 </body>
 </html>
+

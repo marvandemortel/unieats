@@ -1,9 +1,9 @@
 :root{
   --bg:#eaf4ff;          /* fondo */
-  --azul:#0d1b3d;        /* texto */
-  --azul-oscuro:#173a77; /* botón */
-  --azul-borde:#cbd5e1;  /* bordes */
-  --azul-claro:#15bfd0;  /* “E” de UniEats */
+  --azul:#0d1b3d;        /* texto principal */
+  --azul-oscuro:#173a77; /* botones */
+  --azul-borde:#cbd5e1;  /* bordes suaves */
+  --azul-claro:#2ccfd2;  /* “E” celeste */
   --white:#fff;
 }
 
@@ -16,6 +16,7 @@ body{
   margin:0;
 }
 
+/* ---------- CONTENEDORES GENERALES ---------- */
 .page{max-width:980px;margin:0 auto;padding:20px}
 .card{
   background:var(--white);
@@ -25,12 +26,10 @@ body{
   box-shadow:0 2px 6px rgba(13,27,61,.06);
 }
 
-/* -------- LOGIN -------- */
-.login-wrap{
-  min-height:100vh; display:grid; place-items:center; padding:24px;
-}
+/* ---------- LOGIN ---------- */
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
 .login-card{
-  width:360px; /* más chico */
+  width:360px;              /* más chico como pediste */
   background:var(--white);
   border:1px solid var(--azul-borde);
   border-radius:16px;
@@ -38,73 +37,75 @@ body{
   box-shadow:0 8px 24px rgba(13,27,61,.10);
 }
 
-/* LOGO: recortado a círculo del centro (desaparece el “2D”/sobrantes) */
+/* LOGO centrado y recortado en círculo (saca el “2D” de los bordes) */
 .logo{
   width:120px;
   aspect-ratio:1/1;
-  object-fit:cover;
   display:block;
-  margin:6px auto 4px;
-  clip-path:circle(48% at 50% 50%); /* <<< clave del arreglo */
+  margin:12px auto 6px;     /* ← centrado */
+  object-fit:cover;
+  clip-path:circle(48% at 50% 50%);  /* ← recorte que elimina el “2D” */
   border:none; box-shadow:none;
+  image-rendering:-webkit-optimize-contrast;
 }
 
-.brand{ text-align:center; margin:6px 0 2px; font-size:28px; color:var(--azul); font-weight:800 }
-.brand-e{ color:var(--azul-claro) }
-.login-title{ text-align:center; margin:0 0 12px; color:var(--azul) }
+/* Títulos */
+.brand-title{
+  text-align:center;
+  margin:6px 0 0;
+  color:#173a77;
+  font-size:28px;           /* H1 más chico y prolijo */
+  font-weight:800;
+  letter-spacing:.3px;
+}
+.brand-title .brand-e{ color:var(--azul-claro); }
+.login-title{ text-align:center; margin:4px 0 14px; color:#173a77; font-size:22px; }
 
-label{ display:block; margin:8px 0 4px; font-weight:bold }
+/* Formularios */
+label{display:block;margin:8px 0 4px;font-weight:bold}
 input,select,button{
   width:100%; padding:10px; margin:6px 0;
   border:1px solid var(--azul-borde); border-radius:8px; font-size:14px;
 }
-input::placeholder{ color:#9aa6b2 }
+input::placeholder{color:#9aa6b2}
 
-.btn-primary{
-  background:var(--azul-oscuro); color:var(--white);
-  border:none; font-weight:bold;
-}
-.btn-primary:hover{opacity:.95;cursor:pointer}
-.btn-primary:disabled{opacity:.6;cursor:not-allowed}
-.btn-narrow{max-width:220px; margin:10px auto 0; display:block}
+/* Botones */
+button{background:var(--azul-oscuro);color:var(--white);border:none;font-weight:bold}
+button:hover{opacity:.95;cursor:pointer}
+button:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:var(--azul-oscuro);color:var(--white);border:none}
+.btn-narrow{max-width:220px;margin:10px auto 0;display:block}
 
-.lista{list-style:none;padding:0;margin:10px 0}
+/* Listas / Ítems / Badges */
+.list,.lista{list-style:none;padding:0;margin:10px 0}
 .item{
   display:flex;justify-content:space-between;align-items:center;
-  background:var(--white); border:1px solid var(--azul-borde);
-  border-radius:10px; padding:10px; margin-bottom:8px;
+  background:var(--white);border:1px solid var(--azul-borde);
+  border-radius:10px;padding:10px;margin-bottom:8px;
+}
+.badge{
+  padding:4px 8px;border:1px solid var(--azul-borde);border-radius:20px;
+  font-weight:700;
 }
 
-/* Barra inferior (NO se usa en inicio) */
+/* Barra inferior (solo en páginas logueadas) */
 .nav-bottom{
-  position:fixed; left:0; right:0; bottom:0;
-  background:var(--white);
-  border-top:1px solid var(--azul-borde);
-  padding:8px 14px;
-  display:grid; grid-template-columns:repeat(3,1fr); gap:6px; font-size:14px;
+  position:fixed;left:0;right:0;bottom:0;background:var(--white);
+  border-top:1px solid var(--azul-borde);padding:8px 14px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:14px;
 }
-.nav-link{ display:flex; align-items:center; justify-content:center; gap:8px; color:var(--azul); text-decoration:none }
-.nav-ico{ filter:grayscale(100%) } /* emojis/íconos en blanco y negro */
+.nav-item,.nav-link{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--azul);text-decoration:none}
+.ico,.nav-ico{filter:grayscale(100%)} /* emojis/íconos en blanco y negro */
 
+/* Varias */
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hello{font-weight:800}
+.title{margin:6px 0 10px}
+.metodos .item{cursor:pointer;border-radius:8px;border:1px solid var(--azul-borde);padding:10px;margin-bottom:8px}
+.metodos .item.sel{outline:2px solid var(--azul-oscuro)}
+.total{font-weight:800;margin:8px 0}
 .pie{margin-top:16px;text-align:center}
 .error{color:#b00020}
 h1,h2{color:var(--azul);margin:10px 0}
 
 
-.logo{
-  width:120px; height:120px; display:block; margin:12px auto;
-  border:none; box-shadow:none; object-fit:contain;
-}
-
-.brand-title{
-  text-align:center; margin:6px 0 0; font-weight:800;
-  color:#173a77; 
-  font-size:28px; letter-spacing:.3px;
-}
-.brand-title .brand-e{ color:#2ccfd2; } 
-
-.login-title{
-  text-align:center; margin:4px 0 14px; color:#173a77; font-size:22px;
-}
-
-.login-card{ max-width:360px; } 

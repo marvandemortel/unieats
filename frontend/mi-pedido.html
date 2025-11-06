@@ -6,9 +6,9 @@
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-<div id="app" class="login-wrap">
-  <div class="login-card">
-    <h1>Mi pedido</h1>
+<div id="app" class="page">
+  <div class="card">
+    <h1 class="title" style="margin:6px 0 12px;color:#173a77">Mi pedido</h1>
     <p v-if="error" class="error">{{ error }}</p>
 
     <p><strong>ID:</strong> {{ pedido.id }}</p>
@@ -16,26 +16,26 @@
     <p><strong>Pago:</strong> {{ pedido.pago }}</p>
     <p><strong>Hora:</strong> {{ pedido.hora || '-' }}</p>
 
-    <ul class="lista">
+    <ul class="list">
       <li class="item" v-for="it in pedido.items" :key="it.id">
         <span>{{ nombreDe(it.id) }} × {{ it.cantidad }}</span>
       </li>
     </ul>
 
-    <button @click="recargar">Refrescar</button>
+    <button class="btn-primary" style="max-width:220px" @click="recargar">Refrescar</button>
   </div>
 
-  <div class="nav-bottom">
-    <span class="ico">📋︎</span><span> Mis Pedidos</span>
-    <span class="ico">🔔︎</span><span> Notificaciones</span>
-    <span class="ico">👤︎</span><span> Mi Perfil</span>
-  </div>
+  <nav class="nav-bottom">
+    <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+    <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
+    <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+  </nav>
 </div>
+
 <script>
   const UE_USER = localStorage.getItem('ue_user');
   if (!UE_USER) { window.location = 'inicio.html'; }
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
@@ -59,3 +59,4 @@ new Vue({
 </script>
 </body>
 </html>
+

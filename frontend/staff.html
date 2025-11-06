@@ -8,11 +8,9 @@
 </head>
 <body>
   <div id="app" class="page">
-    <!-- ================= Productos ================= -->
     <div class="card">
-      <h1 class="title">Productos</h1>
+      <h1 class="title" style="margin:6px 0 12px;color:#173a77">Productos</h1>
 
-      <!-- Formulario Alta/Edición -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:920px">
         <div>
           <label>Nombre</label>
@@ -41,13 +39,10 @@
         <button class="btn-primary" @click="guardar" :disabled="enviandoProd">
           {{ enviandoProd ? 'Guardando…' : (form.id ? 'Actualizar' : 'Agregar') }}
         </button>
-        <button class="btn-primary" style="background:#6b7280" @click="cancelarEdicion" :disabled="enviandoProd">
-          Cancelar
-        </button>
+        <button class="btn-primary" style="background:#6b7280" @click="cancelarEdicion" :disabled="enviandoProd">Cancelar</button>
       </div>
       <p v-if="errorProd" class="error">{{ errorProd }}</p>
 
-      <!-- Filtros de vista -->
       <div style="display:flex;gap:10px;align-items:center;margin-top:14px">
         <label style="margin:0">Filtrar por:</label>
         <select v-model="filtro.cat" style="max-width:180px">
@@ -63,7 +58,6 @@
         <span style="margin-left:auto;font-weight:700">Total: {{ productosFiltrados.length }}</span>
       </div>
 
-      <!-- Lista de productos -->
       <ul class="list" style="margin-top:10px">
         <li class="item" v-for="p in productosFiltrados" :key="p.id">
           <span>
@@ -71,7 +65,7 @@
             <small style="opacity:.7">[{{ p.categoria }} · {{ p.uni }}]</small>
           </span>
           <span>
-            <span class="badge">${{ p.precio }}</span>
+            <span class="badge">\${{ p.precio }}</span>
             <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click="editar(p)">Editar</button>
             <button class="btn-primary" style="margin-left:6px;background:#b00020;padding:8px 10px"
                     @click="borrar(p)" :disabled="enviandoProd">Borrar</button>
@@ -80,11 +74,9 @@
       </ul>
     </div>
 
-    <!-- ================= Pedidos (Tablero) ================= -->
     <div class="card">
-      <h1 class="title">Pedidos</h1>
+      <h1 class="title" style="margin:6px 0 12px;color:#173a77">Pedidos</h1>
 
-      <!-- Filtros -->
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <label style="margin:0">Estado</label>
         <select v-model="filtroPed.estado" style="max-width:180px" @change="cargarPedidos">
@@ -101,13 +93,12 @@
         <span style="margin-left:auto;font-weight:700">Total: {{ pedidos.length }}</span>
       </div>
 
-      <!-- Lista -->
       <ul class="list" style="margin-top:10px">
         <li class="item" v-for="pd in pedidos" :key="pd.id">
           <div style="display:flex;flex-direction:column">
             <strong>Pedido #{{ pd.id }}</strong>
             <small style="opacity:.75">
-              uni: {{ pd.uni || 'ucema' }} · estado: {{ pd.estado || 'pendiente' }} · pago: {{ pd.estado_pago || 'pendiente' }} · hora: {{ pd.hora_retiro || '-' }}
+              uni: {{ pd.uni || 'ucema' }} · estado: {{ pd.estado || 'pendiente' }} · pago: {{ pd.pago || 'pendiente' }} · hora: {{ pd.hora || '-' }}
             </small>
           </div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
@@ -128,10 +119,9 @@
   </div>
 
   <script>
-  const UE_USER = localStorage.getItem('ue_user');
-  if (!UE_USER) { window.location = 'inicio.html'; }
-</script>
-
+    const UE_USER = localStorage.getItem('ue_user');
+    if (!UE_USER) { window.location = 'inicio.html'; }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
@@ -139,19 +129,10 @@
       el:'#app',
       data:{
         base:'http://127.0.0.1:4000',
-        /* Productos */
-        productos:[],
-        form:{ id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' },
+        productos:[], form:{ id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' },
         categorias:['comida','panificado','bebida','promo'],
-        filtro:{ cat:'', uni:'', q:'' },
-        enviandoProd:false,
-        errorProd:'',
-
-        /* Pedidos */
-        pedidos:[],
-        filtroPed:{ estado:'', desde:'' },
-        cargandoPed:false,
-        errorPed:''
+        filtro:{ cat:'', uni:'', q:'' }, enviandoProd:false, errorProd:'',
+        pedidos:[], filtroPed:{ estado:'', desde:'' }, cargandoPed:false, errorPed:''
       },
       computed:{
         productosFiltrados(){
@@ -163,12 +144,8 @@
           });
         }
       },
-      created(){
-        this.cargarProductos();
-        this.cargarPedidos();
-      },
+      created(){ this.cargarProductos(); this.cargarPedidos(); },
       methods:{
-        /* ===== Productos ===== */
         cargarProductos(){
           axios.get(this.base+'/api/productos')
             .then(r=> this.productos = r.data || [])
@@ -178,24 +155,14 @@
           this.errorProd='';
           if(!this.form.nombre || !this.form.precio){ this.errorProd='Completá nombre y precio.'; return; }
           this.enviandoProd=true;
-
-          const data = {
-            nombre:this.form.nombre, precio:Number(this.form.precio)||0,
-            categoria:this.form.categoria, uni:this.form.uni
-          };
-
-          const req = this.form.id
-            ? axios.put(this.base+'/api/productos/'+this.form.id, data)
-            : axios.post(this.base+'/api/productos', data);
-
+          const data = { nombre:this.form.nombre, precio:Number(this.form.precio)||0, categoria:this.form.categoria, uni:this.form.uni };
+          const req = this.form.id ? axios.put(this.base+'/api/productos/'+this.form.id, data)
+                                   : axios.post(this.base+'/api/productos', data);
           req.then(()=>{ this.cancelarEdicion(); this.cargarProductos(); })
-             .catch(()=> this.errorProd='No se pudo guardar el producto.')
-             .then(()=> this.enviandoProd=false);
+            .catch(()=> this.errorProd='No se pudo guardar el producto.')
+            .then(()=> this.enviandoProd=false);
         },
-        editar(p){
-          this.form = { id:p.id, nombre:p.nombre, precio:p.precio, categoria:p.categoria, uni:p.uni||'ucema' };
-          window.scrollTo({top:0, behavior:'smooth'});
-        },
+        editar(p){ this.form = { id:p.id, nombre:p.nombre, precio:p.precio, categoria:p.categoria, uni:p.uni||'ucema' }; window.scrollTo({top:0, behavior:'smooth'}); },
         borrar(p){
           if(!confirm('¿Eliminar "'+p.nombre+'"?')) return;
           this.enviandoProd=true;
@@ -204,12 +171,7 @@
             .catch(()=> this.errorProd='No se pudo borrar el producto.')
             .then(()=> this.enviandoProd=false);
         },
-        cancelarEdicion(){
-          this.form = { id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' };
-          this.errorProd='';
-        },
-
-        /* ===== Pedidos ===== */
+        cancelarEdicion(){ this.form = { id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' }; this.errorProd=''; },
         cargarPedidos(){
           this.errorPed=''; this.cargandoPed=true;
           const q = [];
@@ -228,9 +190,9 @@
             .catch(()=> this.errorPed='No se pudo actualizar el estado.')
             .then(()=> this.cargandoPed=false);
         },
-        setPago(pedido, estado_pago){
+        setPago(pedido, estado){
           this.cargandoPed=true; this.errorPed='';
-          axios.put(this.base+'/api/pedidos/'+pedido.id, {estado_pago})
+          axios.put(this.base+'/api/pedidos/'+pedido.id, {pago:estado})
             .then(()=> this.cargarPedidos())
             .catch(()=> this.errorPed='No se pudo actualizar el pago.')
             .then(()=> this.cargandoPed=false);
@@ -240,3 +202,4 @@
   </script>
 </body>
 </html>
+

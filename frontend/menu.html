@@ -7,30 +7,29 @@
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-  <div id="app" class="page menu">
+  <div id="app" class="page">
     <div class="card">
-      <div class="top-row">
-        <div class="hello">¡Bienvenida!</div>
-        <div>
-          <label style="font-weight:700;margin:0 8px 0 0">MENÚ</label>
-          <select v-model="categoria">
-            <option value="">todo</option>
-            <option>comida</option>
-            <option>panificado</option>
-            <option>bebida</option>
-            <option>promo</option>
-          </select>
-        </div>
+      <h1 style="margin:6px 0 12px;text-align:left;color:#173a77">¡Bienvenido/a!</h1>
+
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <label style="font-weight:700;margin:0">MENÚ</label>
+        <select v-model="categoria">
+          <option value="">todo</option>
+          <option>comida</option>
+          <option>panificado</option>
+          <option>bebida</option>
+          <option>promo</option>
+        </select>
       </div>
 
       <ul class="list">
         <li class="item" v-for="p in filtrados" :key="p.id">
           <span>{{ p.nombre }}</span>
-          <span class="badge">${{ p.precio }}</span>
+          <span class="badge">\${{ p.precio }}</span>
         </li>
       </ul>
 
-      <button class="btn-primary btn-narrow" v-if="productos.length" @click="irAPago">
+      <button class="btn-primary" style="max-width:220px;margin:10px auto 0;display:block" @click="irAPago" :disabled="!productos.length">
         Ir a pago
       </button>
     </div>
@@ -42,39 +41,39 @@
     </nav>
   </div>
 
+  <script>
+    const UE_USER = localStorage.getItem('ue_user');
+    if (!UE_USER) { window.location = 'inicio.html'; }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
-  const UE_USER = localStorage.getItem('ue_user');
-  if (!UE_USER) { window.location = 'inicio.html'; }
-</script>
-
-  <script>
     function param(n){ return new URL(location.href).searchParams.get(n); }
-
     new Vue({
       el:'#app',
-      data:{ uni:param('uni')||'ucema', pedido:param('pedido')||'', productos:[], categoria:'' },
+      data:{ base:'http://127.0.0.1:4000', uni:(param('uni')||'ucema'), pedido:(param('pedido')||''), productos:[], categoria:'' },
       computed:{
-        filtrados(){
-          if(!this.categoria) return this.productos;
-          return this.productos.filter(p=>p.categoria===this.categoria);
-        }
+        filtrados(){ return this.categoria ? this.productos.filter(p=>p.categoria===this.categoria) : this.productos; }
       },
       created(){
-        const base='http://127.0.0.1:4000';
-        axios.get(base+'/api/productos?uni='+this.uni).then(r=>{
+        // Si no vino pedido, lo creo y recargo con el id
+        if(!this.pedido){
+          axios.post(this.base+'/api/pedidos',{uni:this.uni, items:[]}).then(r=>{
+            location.replace('menu.html?uni='+this.uni+'&pedido='+r.data.id);
+          });
+          return;
+        }
+        axios.get(this.base+'/api/productos?uni='+this.uni).then(r=>{
           this.productos = r.data || [];
-          // Para coincidir con la maqueta: el “tap” agrega todos al carrito
+          // Para que Pago tenga algo a mostrar
           localStorage.setItem('carrito', JSON.stringify(this.productos));
         });
       },
       methods:{
-        irAPago(){
-          window.location='pago.html?uni='+this.uni+'&pedido='+this.pedido;
-        }
+        irAPago(){ window.location='pago.html?uni='+this.uni+'&pedido='+this.pedido; }
       }
     });
   </script>
 </body>
 </html>
+

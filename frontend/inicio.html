@@ -46,42 +46,44 @@
         error: ''
       },
       methods: {
-        iniciar() {
-          this.error = '';
-          if (!this.email.endsWith('@ucema.edu.ar')) {
-            this.error = 'Usá un email @ucema.edu.ar';
-            return;
-          }
-          if (!this.password.trim()) {
-            this.error = 'Ingresá la contraseña.';
-            return;
-          }
+        async iniciar(){
+          this.error='';
+          const mail=this.email.trim().toLowerCase();
+          if(!mail.endsWith('@ucema.edu.ar')){ this.error='Usá un email @ucema.edu.ar'; return; }
+          if(!this.password.trim()){ this.error='Ingresá la contraseña.'; return; }
 
-          this.cargando = true;
-          const base = 'http://127.0.0.1:4000';
+          this.cargando=true;
+          try{
+            const base='http://127.0.0.1:4000';
 
-          axios.post(base + '/login', {
-            email: this.email,
-            password: this.password,
-            uni: this.uni.toLowerCase()
-          })
-          .then(r => {
-            if (r.data && r.data.ok) {
-              localStorage.setItem('ue_user', JSON.stringify(r.data.user));
-              window.location = 'menu.html?uni=' + this.uni.toLowerCase();
-            } else {
-              this.error = 'Credenciales inválidas';
-            }
-          })
-          .catch(() => {
-            this.error = 'No se pudo iniciar sesión. Probá de nuevo.';
-          })
-          .then(() => {
-            this.cargando = false;
-          });
+            // 1) login (acepta cualquier @ucema con pass no vacía)
+            const rLogin = await axios.post(base+'/login', {
+              email: mail, password: this.password, uni: this.uni.toLowerCase()
+            });
+            if(!(rLogin.data && rLogin.data.ok)) throw new Error('login');
+
+            localStorage.setItem('ue_user', JSON.stringify(rLogin.data.user));
+
+            // 2) crear un pedido vacío para seguir el flujo
+            const rPed = await axios.post(base+'/api/pedidos', {
+              uni: this.uni.toLowerCase(), items: [], hora: ''
+            });
+            const id = rPed.data.id;
+
+            // 3) redirigir al menú (Bienvenido/a mostrado ahí)
+            window.location = 'menu.html?uni='+this.uni.toLowerCase()+'&pedido='+id;
+          }catch(e){
+            this.error='No se pudo iniciar sesión. Probá de nuevo.';
+          }finally{
+            this.cargando=false;
+          }
         }
       }
     });
   </script>
 </body>
 </html>
+
+
+
+
