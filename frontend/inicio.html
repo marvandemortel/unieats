@@ -3,33 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <title>UniEats - Iniciar sesión</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
   <div id="app" class="login-wrap">
     <div class="login-card">
-      <img src="img/logo.png" alt="Logo UniEats" class="logo" />
-      <h1 class="brand">Uni<span class="brand-e">E</span>ats</h1>
-      <h2 class="login-title">Iniciar sesión</h2>
+      <img src="img/logo.png" alt="UniEats" class="logo">
+
+      <h1 class="brand">Uni<span class="brand-light">Eats</span></h1>
+      <h2>Iniciar sesión</h2>
 
       <label for="email">Email</label>
-      <input id="email" type="email" v-model="email" placeholder="nombre@ucema.edu.ar" />
+      <input id="email" type="email" v-model="email" placeholder="nombre@ucema.edu.ar">
 
       <label for="pass">Contraseña</label>
-      <input id="pass" type="password" v-model="pass" placeholder="********" />
+      <input id="pass" type="password" v-model="pass" placeholder="********">
 
       <label for="uni">Universidad</label>
       <select id="uni" v-model="uni">
-        <option value="ucema">UCEMA</option>
-        <option value="otra">Otra</option>
+        <option>UCEMA</option>
+        <option>Otra</option>
       </select>
 
-      <button class="btn-primary btn-narrow" @click="iniciar" :disabled="cargando">
+      <button @click="iniciar" :disabled="cargando">
         {{ cargando ? 'Creando pedido…' : 'Iniciar sesión' }}
       </button>
 
-      <p v-if="error" class="error" style="margin-top:10px">{{ error }}</p>
+      <p v-if="error" class="error">{{ error }}</p>
     </div>
   </div>
 
@@ -37,36 +37,42 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
   new Vue({
-    el:'#app',
-    data:{ email:'', pass:'', uni:'ucema', cargando:false, error:'' },
-    methods:{
-      async iniciar(){
-        this.error='';
-        if(!this.email || this.email.indexOf('@')===-1){ this.error='Ingresá un email válido.'; return; }
-        if(!this.pass || !this.pass.trim()){ this.error='Ingresá tu contraseña.'; return; }
+    el: '#app',
+    data: {
+      email: '',
+      pass: '',
+      uni: 'UCEMA',
+      cargando: false,
+      error: ''
+    },
+    methods: {
+      iniciar(){
+        this.error = '';
+        if (!/.+@.+\..+/.test(this.email)) { this.error = 'Ingresá un email válido.'; return; }
+        if (!this.pass.trim()) { this.error = 'Ingresá una contraseña.'; return; }
 
-        this.cargando = true;
         const base = 'http://127.0.0.1:4000';
+        this.cargando = true;
 
-        try{
-          // 1) Login (backend acepta cualquier password no vacía)
-          await axios.post(base + '/login', { username:this.email, password:this.pass });
-
-          // 2) Intentar crear pedido (si falla, igual entramos)
-          let pedidoId = null;
-          try {
-            const r = await axios.post(base + '/api/pedidos', { uni:this.uni });
-            pedidoId = r.data && r.data.id ? r.data.id : null;
-          } catch(_) { /* sin drama, seguimos */ }
-
-          const qs = 'uni=' + encodeURIComponent(this.uni) + (pedidoId ? '&pedido=' + encodeURIComponent(pedidoId) : '');
-          window.location = 'menu.html?' + qs;
-
-        }catch(e){
+        axios.post(base + '/login', {
+          username: this.email,
+          password: this.pass,
+          uni: (this.uni.toLowerCase() === 'ucema') ? 'ucema' : 'otra'
+        })
+        .then(() => {
+          // Guardamos sesión mínima para el resto de pantallas
+          localStorage.setItem('ue_user', JSON.stringify({
+            email: this.email,
+            uni: this.uni.toLowerCase()
+          }));
+          // Redirige al menú
+          window.location = 'menu.html?uni=' + this.uni.toLowerCase();
+        })
+        .catch(err => {
+          console.error(err);
           this.error = 'No se pudo iniciar sesión. Probá de nuevo.';
-        }finally{
-          this.cargando = false;
-        }
+        })
+        .then(() => this.cargando = false);
       }
     }
   });

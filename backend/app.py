@@ -1,8 +1,18 @@
 # backend/app.py
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import json, os
 
 app = Flask(__name__)
+
+CORS(app, resources={r"/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}})
+@app.after_request
+def add_cors_headers(resp):
+    resp.headers["Access-Control-Allow-Origin"] = "http://localhost:8080"
+    resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    resp.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+    return resp
+
 
 DB_FILE = os.path.join(os.path.dirname(__file__), 'data.json')
 
@@ -64,12 +74,28 @@ def cors(resp):
     return resp
 
 # ------------------ LOGIN --------------
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
+    if request.method == 'OPTIONS':
+        return ('', 204)
+
     data = request.get_json() or {}
-    if 'username' in data and str(data.get('password','')).strip() != '':
-        return jsonify({"mensaje":"ok"}), 200
-    return jsonify({"error":"Faltan datos"}), 400
+    email = str(data.get('username', '')).strip().lower()
+    password = str(data.get('password', '')).strip()
+    uni = str(data.get('uni', 'generic')).strip().lower()
+
+    if not email or not password:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    # Regla simple del TP: si selecciona UCEMA, el mail debe ser UCEMA
+    if uni == 'ucema' and not email.endswith('@ucema.edu.ar'):
+        return jsonify({"error": "El email debe terminar en @ucema.edu.ar"}), 401
+
+    # Para el TP aceptamos cualquier password no vacía
+    return jsonify({
+        "mensaje": "Inicio de sesión exitoso",
+        "user": {"email": email, "uni": uni}
+    }), 200
 
 # ------------------ PRODUCTOS --------------------
 @app.route('/api/productos', methods=['GET'])
