@@ -45,6 +45,11 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
+  const UE_USER = localStorage.getItem('ue_user');
+  if (!UE_USER) { window.location = 'inicio.html'; }
+</script>
+
+  <script>
     function param(n){ return new URL(location.href).searchParams.get(n); }
 
     new Vue({
