@@ -89,3 +89,22 @@ input::placeholder{ color:#9aa6b2 }
 .pie{margin-top:16px;text-align:center}
 .error{color:#b00020}
 h1,h2{color:var(--azul);margin:10px 0}
+
+
+.logo{
+  width:120px; height:120px; display:block; margin:12px auto;
+  border:none; box-shadow:none; object-fit:contain;
+}
+
+.brand-title{
+  text-align:center; margin:6px 0 0; font-weight:800;
+  color:#173a77; 
+  font-size:28px; letter-spacing:.3px;
+}
+.brand-title .brand-e{ color:#2ccfd2; } 
+
+.login-title{
+  text-align:center; margin:4px 0 14px; color:#173a77; font-size:22px;
+}
+
+.login-card{ max-width:360px; } 

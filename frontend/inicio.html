@@ -8,21 +8,20 @@
 <body>
   <div id="app" class="login-wrap">
     <div class="login-card">
-      <img src="img/logo.png" alt="UniEats" class="logo">
+      <img src="img/logo.png" alt="UniEats" class="logo" />
 
-      <h1 class="brand">Uni<span class="brand-light">Eats</span></h1>
-      <h2>Iniciar sesión</h2>
+      <h1 class="brand-title">Uni<span class="brand-e">E</span>ats</h1>
+      <h2 class="login-title">Iniciar sesión</h2>
 
       <label for="email">Email</label>
-      <input id="email" type="email" v-model="email" placeholder="nombre@ucema.edu.ar">
+      <input id="email" type="email" v-model="email" placeholder="nombre@ucema.edu.ar" />
 
-      <label for="pass">Contraseña</label>
-      <input id="pass" type="password" v-model="pass" placeholder="********">
+      <label for="pwd">Contraseña</label>
+      <input id="pwd" type="password" v-model="password" placeholder="********" />
 
       <label for="uni">Universidad</label>
       <select id="uni" v-model="uni">
         <option>UCEMA</option>
-        <option>Otra</option>
       </select>
 
       <button @click="iniciar" :disabled="cargando">
@@ -33,49 +32,56 @@
     </div>
   </div>
 
+  <!-- Vue + Axios -->
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
-  new Vue({
-    el: '#app',
-    data: {
-      email: '',
-      pass: '',
-      uni: 'UCEMA',
-      cargando: false,
-      error: ''
-    },
-    methods: {
-      iniciar(){
-        this.error = '';
-        if (!/.+@.+\..+/.test(this.email)) { this.error = 'Ingresá un email válido.'; return; }
-        if (!this.pass.trim()) { this.error = 'Ingresá una contraseña.'; return; }
+    new Vue({
+      el: '#app',
+      data: {
+        email: '',
+        password: '',
+        uni: 'UCEMA',
+        cargando: false,
+        error: ''
+      },
+      methods: {
+        iniciar() {
+          this.error = '';
+          if (!this.email.endsWith('@ucema.edu.ar')) {
+            this.error = 'Usá un email @ucema.edu.ar';
+            return;
+          }
+          if (!this.password.trim()) {
+            this.error = 'Ingresá la contraseña.';
+            return;
+          }
 
-        const base = 'http://127.0.0.1:4000';
-        this.cargando = true;
+          this.cargando = true;
+          const base = 'http://127.0.0.1:4000';
 
-        axios.post(base + '/login', {
-          username: this.email,
-          password: this.pass,
-          uni: (this.uni.toLowerCase() === 'ucema') ? 'ucema' : 'otra'
-        })
-        .then(() => {
-          // Guardamos sesión mínima para el resto de pantallas
-          localStorage.setItem('ue_user', JSON.stringify({
+          axios.post(base + '/login', {
             email: this.email,
+            password: this.password,
             uni: this.uni.toLowerCase()
-          }));
-          // Redirige al menú
-          window.location = 'menu.html?uni=' + this.uni.toLowerCase();
-        })
-        .catch(err => {
-          console.error(err);
-          this.error = 'No se pudo iniciar sesión. Probá de nuevo.';
-        })
-        .then(() => this.cargando = false);
+          })
+          .then(r => {
+            if (r.data && r.data.ok) {
+              localStorage.setItem('ue_user', JSON.stringify(r.data.user));
+              window.location = 'menu.html?uni=' + this.uni.toLowerCase();
+            } else {
+              this.error = 'Credenciales inválidas';
+            }
+          })
+          .catch(() => {
+            this.error = 'No se pudo iniciar sesión. Probá de nuevo.';
+          })
+          .then(() => {
+            this.cargando = false;
+          });
+        }
       }
-    }
-  });
+    });
   </script>
 </body>
 </html>

@@ -1,4 +1,3 @@
-# backend/app.py
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json, os
@@ -74,28 +73,23 @@ def cors(resp):
     return resp
 
 # ------------------ LOGIN --------------
-@app.route('/login', methods=['POST', 'OPTIONS'])
+# ---------- Login ----------
+@app.route('/login', methods=['POST'])
 def login():
-    if request.method == 'OPTIONS':
-        return ('', 204)
+    try:
+        data = request.get_json(force=True) or {}
+        email = (data.get('email') or data.get('username') or '').strip()
+        password = str(data.get('password') or '').strip()
+        uni = (data.get('uni') or 'ucema').lower()
 
-    data = request.get_json() or {}
-    email = str(data.get('username', '')).strip().lower()
-    password = str(data.get('password', '')).strip()
-    uni = str(data.get('uni', 'generic')).strip().lower()
+        # Acepta cualquier mail @ucema.edu.ar con password NO vacía
+        if email.endswith('@ucema.edu.ar') and password:
+            return jsonify({"ok": True, "user": {"email": email, "uni": uni}}), 200
 
-    if not email or not password:
-        return jsonify({"error": "Faltan datos"}), 400
+        return jsonify({"error": "Credenciales inválidas"}), 401
+    except Exception:
+        return jsonify({"error": "Formato inválido"}), 400
 
-    # Regla simple del TP: si selecciona UCEMA, el mail debe ser UCEMA
-    if uni == 'ucema' and not email.endswith('@ucema.edu.ar'):
-        return jsonify({"error": "El email debe terminar en @ucema.edu.ar"}), 401
-
-    # Para el TP aceptamos cualquier password no vacía
-    return jsonify({
-        "mensaje": "Inicio de sesión exitoso",
-        "user": {"email": email, "uni": uni}
-    }), 200
 
 # ------------------ PRODUCTOS --------------------
 @app.route('/api/productos', methods=['GET'])
