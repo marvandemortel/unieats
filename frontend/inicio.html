@@ -63,7 +63,7 @@ new Vue({
       }catch(e){
         const st = e?.response?.status;
         if(st){ this.error = `Error ${st}: no se pudo iniciar sesión.`; }
-        else { this.error = 'No se pudo iniciar sesión. ¿Está corriendo el backend en 127.0.0.1:4000?'; }
+        else { this.error = 'No se pudo iniciar sesión.'; }
       }finally{
         this.cargando=false;
       }
