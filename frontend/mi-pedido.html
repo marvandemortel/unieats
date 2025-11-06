@@ -42,7 +42,7 @@
 function param(n){ return new URL(location.href).searchParams.get(n); }
 new Vue({
   el:'#app',
-  data:{ base:'http://127.0.0.1:4000', pedido:{items:[]}, productos:[], error:'' },
+  data:{ base:(localStorage.getItem('ue_api')||'http://127.0.0.1:4000'), pedido:{items:[]}, productos:[], error:'' },
   created(){
     axios.get(this.base + '/api/productos').then(r=> this.productos=r.data);
     this.recargar();
@@ -59,4 +59,5 @@ new Vue({
 </script>
 </body>
 </html>
+
 

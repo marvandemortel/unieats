@@ -65,7 +65,7 @@
             <small style="opacity:.7">[{{ p.categoria }} · {{ p.uni }}]</small>
           </span>
           <span>
-            <span class="badge">\${{ p.precio }}</span>
+            <span class="badge">${{ p.precio }}</span>
             <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click="editar(p)">Editar</button>
             <button class="btn-primary" style="margin-left:6px;background:#b00020;padding:8px 10px"
                     @click="borrar(p)" :disabled="enviandoProd">Borrar</button>
@@ -128,7 +128,7 @@
     new Vue({
       el:'#app',
       data:{
-        base:'http://127.0.0.1:4000',
+        base:(localStorage.getItem('ue_api')||'http://127.0.0.1:4000'),
         productos:[], form:{ id:'', nombre:'', precio:'', categoria:'comida', uni:'ucema' },
         categorias:['comida','panificado','bebida','promo'],
         filtro:{ cat:'', uni:'', q:'' }, enviandoProd:false, errorProd:'',
@@ -202,4 +202,5 @@
   </script>
 </body>
 </html>
+
 
