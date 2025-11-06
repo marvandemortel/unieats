@@ -15,11 +15,11 @@
     <ul class="list">
       <li class="item" v-for="it in pedido.items" :key="it.id">
         <span>{{ nombreDe(it.id) }} × {{ it.cantidad }}</span>
-        <strong>${{ precioDe(it.id) * it.cantidad }}</strong>
+        <strong>\${{ precioDe(it.id) * it.cantidad }}</strong>
       </li>
     </ul>
 
-    <div class="badge" style="text-align:right">Total: <strong>${{ total }}</strong></div>
+    <div class="badge" style="text-align:right">Total: <strong>\${{ total }}</strong></div>
 
     <label for="hora">¿A qué hora retirás?</label>
     <select id="hora" v-model="hora">
@@ -46,7 +46,10 @@
 function param(n){ return new URL(location.href).searchParams.get(n); }
 new Vue({
   el:'#app',
-  data:{ base:(localStorage.getItem('ue_api')||'http://127.0.0.1:4000'), pedido:{items:[]}, productos:[], cargando:true, error:'', hora:'10:00', horas:[], enviando:false },
+  data:{
+    base: localStorage.getItem('ue_api') || 'http://127.0.0.1:4000',
+    pedido:{items:[]}, productos:[], cargando:true, error:'', hora:'10:00', horas:[], enviando:false
+  },
   created(){
     this.horas = this.genHoras();
     axios.get(this.base + '/api/productos').then(r=> this.productos = r.data);
@@ -82,5 +85,7 @@ new Vue({
 </script>
 </body>
 </html>
+
+
 
 

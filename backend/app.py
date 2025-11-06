@@ -1,6 +1,6 @@
 # app.py - UniEats 
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS # type: ignore
 import json, os, sys
 
 app = Flask(__name__)
@@ -25,40 +25,40 @@ def cors_preflight(_=None):
 def health():
     return jsonify(ok=True), 200
 
-# ruta segura (absoluta) al archivo JSON
+# ruta segura al JSON (sirve en mac)
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json")
 
 def _base_db():
-    # IDs en orden 1..27
+    # IDs ordenados 1..27
     return {
         "productos": [
-            {"id": 1,  "uni": "generic", "nombre": "Pebete",                         "precio": 2500, "categoria": "comida"},
-            {"id": 2,  "uni": "generic", "nombre": "Tostado",                        "precio": 3200, "categoria": "comida"},
-            {"id": 3,  "uni": "generic", "nombre": "Medialuna",                      "precio":  900, "categoria": "panificado"},
-            {"id": 4,  "uni": "generic", "nombre": "Budín",                          "precio": 1800, "categoria": "panificado"},
-            {"id": 5,  "uni": "generic", "nombre": "Café chico",                     "precio": 1200, "categoria": "bebida"},
-            {"id": 6,  "uni": "generic", "nombre": "Café grande",                    "precio": 1700, "categoria": "bebida"},
-            {"id": 7,  "uni": "generic", "nombre": "Jugo de naranja",                "precio": 2200, "categoria": "bebida"},
-            {"id": 8,  "uni": "generic", "nombre": "Agua sin gas 500ml",             "precio": 1200, "categoria": "bebida"},
-            {"id": 9,  "uni": "generic", "nombre": "Gaseosa lata",                   "precio": 1800, "categoria": "bebida"},
-            {"id": 10, "uni": "generic", "nombre": "Ensalada César",                 "precio": 5200, "categoria": "comida"},
-            {"id": 11, "uni": "generic", "nombre": "Ensalada mixta",                 "precio": 4500, "categoria": "comida"},
-            {"id": 12, "uni": "generic", "nombre": "Empanada de carne",              "precio": 1200, "categoria": "comida"},
-            {"id": 13, "uni": "generic", "nombre": "Empanada jyq",                   "precio": 1200, "categoria": "comida"},
-            {"id": 14, "uni": "generic", "nombre": "Wrap de pollo",                  "precio": 4800, "categoria": "comida"},
-            {"id": 15, "uni": "generic", "nombre": "Wrap veggie",                    "precio": 4700, "categoria": "comida"},
-            {"id": 16, "uni": "generic", "nombre": "Sándwich veggie",                "precio": 4300, "categoria": "comida"},
-            {"id": 17, "uni": "generic", "nombre": "Tarta jyq",                      "precio": 3900, "categoria": "comida"},
-            {"id": 18, "uni": "generic", "nombre": "Tarta de verdura",               "precio": 3800, "categoria": "comida"},
-            {"id": 19, "uni": "generic", "nombre": "Chipá (porción)",                "precio": 1300, "categoria": "panificado"},
-            {"id": 20, "uni": "generic", "nombre": "Alfajor",                        "precio": 1600, "categoria": "panificado"},
-            {"id": 21, "uni": "generic", "nombre": "Muffin de chocolate",            "precio": 1900, "categoria": "panificado"},
-            {"id": 22, "uni": "generic", "nombre": "Té en saquito",                  "precio": 1100, "categoria": "bebida"},
-            {"id": 23, "uni": "generic", "nombre": "Submarino",                      "precio": 2400, "categoria": "bebida"},
-            {"id": 24, "uni": "generic", "nombre": "Promo: Café chico + medialuna",  "precio": 1900, "categoria": "promo"},
-            {"id": 25, "uni": "generic", "nombre": "Promo: Sándwich + gaseosa",      "precio": 4700, "categoria": "promo"},
-            {"id": 26, "uni": "ucema",   "nombre": "Promo: Café chico + budín",      "precio": 2800, "categoria": "promo"},
-            {"id": 27, "uni": "ucema",   "nombre": "Promo: Ensalada + agua",         "precio": 5900, "categoria": "promo"}
+            {"id": 1,  "uni": "generic", "nombre": "Pebete", "precio": 2500, "categoria": "comida"},
+            {"id": 2,  "uni": "generic", "nombre": "Tostado", "precio": 3200, "categoria": "comida"},
+            {"id": 3,  "uni": "generic", "nombre": "Medialuna", "precio":  900, "categoria": "panificado"},
+            {"id": 4,  "uni": "generic", "nombre": "Budín", "precio": 1800, "categoria": "panificado"},
+            {"id": 5,  "uni": "generic", "nombre": "Café chico", "precio": 1200, "categoria": "bebida"},
+            {"id": 6,  "uni": "generic", "nombre": "Café grande", "precio": 1700, "categoria": "bebida"},
+            {"id": 7,  "uni": "generic", "nombre": "Jugo de naranja", "precio": 2200, "categoria": "bebida"},
+            {"id": 8,  "uni": "generic", "nombre": "Agua sin gas 500ml", "precio": 1200, "categoria": "bebida"},
+            {"id": 9,  "uni": "generic", "nombre": "Gaseosa lata", "precio": 1800, "categoria": "bebida"},
+            {"id": 10, "uni": "generic", "nombre": "Ensalada César", "precio": 5200, "categoria": "comida"},
+            {"id": 11, "uni": "generic", "nombre": "Ensalada mixta", "precio": 4500, "categoria": "comida"},
+            {"id": 12, "uni": "generic", "nombre": "Empanada de carne", "precio": 1200, "categoria": "comida"},
+            {"id": 13, "uni": "generic", "nombre": "Empanada jyq", "precio": 1200, "categoria": "comida"},
+            {"id": 14, "uni": "generic", "nombre": "Wrap de pollo", "precio": 4800, "categoria": "comida"},
+            {"id": 15, "uni": "generic", "nombre": "Wrap veggie", "precio": 4700, "categoria": "comida"},
+            {"id": 16, "uni": "generic", "nombre": "Sándwich veggie", "precio": 4300, "categoria": "comida"},
+            {"id": 17, "uni": "generic", "nombre": "Tarta jyq", "precio": 3900, "categoria": "comida"},
+            {"id": 18, "uni": "generic", "nombre": "Tarta de verdura", "precio": 3800, "categoria": "comida"},
+            {"id": 19, "uni": "generic", "nombre": "Chipá (porción)", "precio": 1300, "categoria": "panificado"},
+            {"id": 20, "uni": "generic", "nombre": "Alfajor", "precio": 1600, "categoria": "panificado"},
+            {"id": 21, "uni": "generic", "nombre": "Muffin de chocolate", "precio": 1900, "categoria": "panificado"},
+            {"id": 22, "uni": "generic", "nombre": "Té en saquito", "precio": 1100, "categoria": "bebida"},
+            {"id": 23, "uni": "generic", "nombre": "Submarino", "precio": 2400, "categoria": "bebida"},
+            {"id": 24, "uni": "generic", "nombre": "Promo: Café chico + medialuna", "precio": 1900, "categoria": "promo"},
+            {"id": 25, "uni": "generic", "nombre": "Promo: Sándwich + gaseosa", "precio": 4700, "categoria": "promo"},
+            {"id": 26, "uni": "ucema",   "nombre": "Promo: Café chico + budín", "precio": 2800, "categoria": "promo"},
+            {"id": 27, "uni": "ucema",   "nombre": "Promo: Ensalada + agua", "precio": 5900, "categoria": "promo"}
         ],
         "pedidos": [],
         "feedback": []
@@ -205,3 +205,4 @@ def actualizar_pedido(pid):
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=4000, debug=True)
+

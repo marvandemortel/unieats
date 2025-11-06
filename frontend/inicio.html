@@ -3,87 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <title>UniEats - Iniciar sesión</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
   <div id="app" class="login-wrap">
     <div class="login-card">
       <img src="img/logo.png" alt="UniEats" class="logo" />
-
       <h1 class="brand-title">Uni<span class="brand-e">E</span>ats</h1>
       <h2 class="login-title">Iniciar sesión</h2>
 
       <label for="email">Email</label>
-      <input id="email" type="email" v-model="email" placeholder="nombre@ucema.edu.ar" />
+      <input id="email" type="email" v-model.trim="email" placeholder="nombre@ucema.edu.ar" />
 
       <label for="pwd">Contraseña</label>
-      <input id="pwd" type="password" v-model="password" placeholder="********" />
+      <input id="pwd" type="password" v-model.trim="password" placeholder="********" />
 
       <label for="uni">Universidad</label>
       <select id="uni" v-model="uni">
         <option>UCEMA</option>
       </select>
 
-      <button @click="iniciar" :disabled="cargando">
-        {{ cargando ? 'Creando pedido…' : 'Iniciar sesión' }}
+      <button class="btn-primary" @click="iniciar" :disabled="cargando">
+        {{ cargando ? 'Conectando…' : 'Iniciar sesión' }}
       </button>
 
       <p v-if="error" class="error">{{ error }}</p>
     </div>
   </div>
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+new Vue({
+  el:'#app',
+  data:{ email:'', password:'', uni:'UCEMA', cargando:false, error:'' },
+  methods:{
+    async iniciar(){
+      this.error='';
+      const mail=(this.email||'').toLowerCase().trim();
+      if(!mail.endsWith('@ucema.edu.ar')){ this.error='Usá un email @ucema.edu.ar'; return; }
+      if(!this.password){ this.error='Ingresá la contraseña.'; return; }
 
-  <!-- Vue + Axios -->
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script>
-    new Vue({
-      el: '#app',
-      data: {
-        email: '',
-        password: '',
-        uni: 'UCEMA',
-        cargando: false,
-        error: ''
-      },
-      methods: {
-        async iniciar(){
-          this.error='';
-          const mail=this.email.trim().toLowerCase();
-          if(!mail.endsWith('@ucema.edu.ar')){ this.error='Usá un email @ucema.edu.ar'; return; }
-          if(!this.password.trim()){ this.error='Ingresá la contraseña.'; return; }
+      this.cargando=true;
+      try{
+        // **FIJO** en 127.0.0.1:4000 para evitar fallas de “detección”
+        const base='http://127.0.0.1:4000';
+        localStorage.setItem('ue_api', base);
 
-          this.cargando=true;
-          try{
-            const base='http://127.0.0.1:4000';
+        const r = await axios.post(base+'/login', {
+          email: mail, password: this.password, uni: this.uni.toLowerCase()
+        });
 
-            // 1) login (acepta cualquier @ucema con pass no vacía)
-            const rLogin = await axios.post(base+'/login', {
-              email: mail, password: this.password, uni: this.uni.toLowerCase()
-            });
-            if(!(rLogin.data && rLogin.data.ok)) throw new Error('login');
-
-            localStorage.setItem('ue_user', JSON.stringify(rLogin.data.user));
-
-            // 2) crear un pedido vacío para seguir el flujo
-            const rPed = await axios.post(base+'/api/pedidos', {
-              uni: this.uni.toLowerCase(), items: [], hora: ''
-            });
-            const id = rPed.data.id;
-
-            // 3) redirigir al menú (Bienvenido/a mostrado ahí)
-            window.location = 'menu.html?uni='+this.uni.toLowerCase()+'&pedido='+id;
-          }catch(e){
-            this.error='No se pudo iniciar sesión. Probá de nuevo.';
-          }finally{
-            this.cargando=false;
-          }
+        if(r.data && r.data.ok){
+          localStorage.setItem('ue_user', JSON.stringify(r.data.user));
+          window.location = 'menu.html?uni='+this.uni.toLowerCase();
+          return;
         }
+        this.error='Credenciales inválidas';
+      }catch(e){
+        const st = e?.response?.status;
+        if(st){ this.error = `Error ${st}: no se pudo iniciar sesión.`; }
+        else { this.error = 'No se pudo iniciar sesión. ¿Está corriendo el backend en 127.0.0.1:4000?'; }
+      }finally{
+        this.cargando=false;
       }
-    });
-  </script>
+    }
+  }
+});
+</script>
 </body>
 </html>
-
 
 
 
