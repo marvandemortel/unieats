@@ -11,14 +11,6 @@
     <div class="card">
       <h1 class="title">Método de pago</h1>
 
-      <ul class="list">
-        <li class="item" v-for="it in carrito" :key="it.id">
-          <span>{{ it.nombre }}</span>
-          <span class="badge">${{ it.precio }}</span>
-        </li>
-      </ul>
-      <div class="total">Total: ${{ total }}</div>
-
       <div class="metodos">
         <div class="item" :class="{sel: metodo==='mp'}" @click="metodo='mp'">💳︎ Mercado Pago</div>
         <div class="item" :class="{sel: metodo==='efectivo'}" @click="metodo='efectivo'">💵︎ Efectivo (presencial)</div>
@@ -38,45 +30,13 @@
     </nav>
   </div>
 
-  <script>
-    const UE_USER = localStorage.getItem('ue_user');
-    if (!UE_USER) { window.location = 'inicio.html'; }
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script> if(!localStorage.getItem('ue_user')) location.href='inicio.html'; </script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script>
-    function param(n){ return new URL(location.href).searchParams.get(n); }
-    new Vue({
-      el:'#app',
-      data:{
-        base: localStorage.getItem('ue_api') || 'http://127.0.0.1:4000',
-        uni:param('uni')||'ucema',
-        pedido:param('pedido')||'',
-        carrito:[],
-        metodo:'',
-        error:''
-      },
-      computed:{
-        total(){ return this.carrito.reduce((a,b)=>a+(b.precio||0),0); }
-      },
-      created(){
-        this.carrito = JSON.parse(localStorage.getItem('carrito')||'[]');
-      },
-      methods:{
-        async continuar(){
-          try{
-            await axios.put(this.base+'/api/pedidos/'+this.pedido,{pago:this.metodo, estado:'pendiente'});
-            window.location='retiro.html?uni='+this.uni+'&pedido='+this.pedido;
-          }catch(e){
-            this.error='No se pudo registrar el pago.';
-          }
-        }
-      }
-    });
-  </script>
+  <script src="js/pago.js"></script>
 </body>
 </html>
+
 
 
 

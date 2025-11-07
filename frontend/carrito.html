@@ -3,88 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <title>UniEats - Carrito</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
 <div id="app" class="page">
   <div class="card">
     <h1 class="title" style="margin:6px 0 12px;color:#173a77">Mi carrito</h1>
-    <p v-if="cargando">Cargando…</p>
+
+    <p v-if="!items.length">Tu carrito está vacío.</p>
     <p v-if="error" class="error">{{ error }}</p>
 
-    <ul class="list">
-      <li class="item" v-for="it in pedido.items" :key="it.id">
-        <span>{{ nombreDe(it.id) }} × {{ it.cantidad }}</span>
-        <strong>\${{ precioDe(it.id) * it.cantidad }}</strong>
+    <ul class="list" v-if="items.length">
+      <li class="item" v-for="it in items" :key="it.id">
+        <span>{{ it.nombre }} × 
+          <button class="btn-primary" style="padding:2px 8px" @click="menos(it)">-</button>
+          {{ it.cantidad }}
+          <button class="btn-primary" style="padding:2px 8px" @click="mas(it)">+</button>
+        </span>
+        <strong>\${{ it.precio * it.cantidad }}</strong>
       </li>
     </ul>
 
-    <div class="badge" style="text-align:right">Total: <strong>\${{ total }}</strong></div>
+    <div class="badge" v-if="items.length" style="text-align:right">Total: <strong>\${{ total }}</strong></div>
 
-    <label for="hora">¿A qué hora retirás?</label>
-    <select id="hora" v-model="hora">
+    <label for="hora" v-if="items.length">¿A qué hora retirás?</label>
+    <select id="hora" v-model="hora" v-if="items.length">
       <option v-for="h in horas" :key="h">{{ h }}</option>
     </select>
 
-    <button class="btn-primary" style="max-width:220px" @click="confirmar" :disabled="enviando">{{ enviando ? 'Confirmando…' : 'Confirmar pedido' }}</button>
+    <button class="btn-primary" style="max-width:220px" 
+            @click="confirmar" :disabled="enviando || !items.length">
+      {{ enviando ? 'Confirmando…' : 'Confirmar pedido' }}
+    </button>
   </div>
 
   <nav class="nav-bottom">
-    <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+    <a class="nav-item" href="menu.html"><span class="ico">📋︎</span><span>Seguir comprando</span></a>
     <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
     <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
   </nav>
 </div>
 
-<script>
-  const UE_USER = localStorage.getItem('ue_user');
-  if (!UE_USER) { window.location = 'inicio.html'; }
-</script>
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<script> if(!localStorage.getItem('ue_user')) location.href='inicio.html'; </script>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-function param(n){ return new URL(location.href).searchParams.get(n); }
-new Vue({
-  el:'#app',
-  data:{
-    base: localStorage.getItem('ue_api') || 'http://127.0.0.1:4000',
-    pedido:{items:[]}, productos:[], cargando:true, error:'', hora:'10:00', horas:[], enviando:false
-  },
-  created(){
-    this.horas = this.genHoras();
-    axios.get(this.base + '/api/productos').then(r=> this.productos = r.data);
-    const id = param('pedido');
-    axios.get(this.base + '/api/pedidos/' + id)
-      .then(r=> this.pedido = r.data)
-      .catch(()=> this.error='No se pudo cargar el pedido')
-      .then(()=> this.cargando=false);
-  },
-  computed:{
-    total(){
-      const precios = {}; this.productos.forEach(p=> precios[p.id]=p.precio);
-      return (this.pedido.items||[]).reduce((ac,it)=> ac + (precios[it.id]||0)*it.cantidad, 0);
-    }
-  },
-  methods:{
-    nombreDe(id){ const p=this.productos.find(x=>x.id===id); return p? p.nombre : ('#'+id); },
-    precioDe(id){ const p=this.productos.find(x=>x.id===id); return p? p.precio : 0; },
-    genHoras(){
-      const res=[]; let h=10, m=0;
-      while(h<20 || (h===20 && m===0)){ res.push((h+'').padStart(2,'0') + ':' + (m+'').padStart(2,'0')); m+=15; if(m===60){m=0;h++;} }
-      return res;
-    },
-    confirmar(){
-      this.enviando=true;
-      axios.put(this.base + '/api/pedidos/' + this.pedido.id, { hora:this.hora, estado:'creado' })
-        .then(()=> location.href = 'pago.html?pedido='+this.pedido.id+'&hora='+encodeURIComponent(this.hora))
-        .catch(()=> this.error='No se pudo confirmar')
-        .then(()=> this.enviando=false);
-    }
-  }
-});
-</script>
+<script src="js/carrito.js"></script>
 </body>
 </html>
+
 
 
 

@@ -24,55 +24,19 @@
         <option>UCEMA</option>
       </select>
 
-      <button class="btn-primary" @click="iniciar" :disabled="cargando">
-        {{ cargando ? 'Conectando…' : 'Iniciar sesión' }}
+      <button class="btn-primary" @click="iniciar" :disabled="enviando">
+        {{ enviando ? 'Conectando…' : 'Iniciar sesión' }}
       </button>
 
       <p v-if="error" class="error">{{ error }}</p>
     </div>
   </div>
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-new Vue({
-  el:'#app',
-  data:{ email:'', password:'', uni:'UCEMA', cargando:false, error:'' },
-  methods:{
-    async iniciar(){
-      this.error='';
-      const mail=(this.email||'').toLowerCase().trim();
-      if(!mail.endsWith('@ucema.edu.ar')){ this.error='Usá un email @ucema.edu.ar'; return; }
-      if(!this.password){ this.error='Ingresá la contraseña.'; return; }
 
-      this.cargando=true;
-      try{
-        // **FIJO** en 127.0.0.1:4000 para evitar fallas de “detección”
-        const base='http://127.0.0.1:4000';
-        localStorage.setItem('ue_api', base);
-
-        const r = await axios.post(base+'/login', {
-          email: mail, password: this.password, uni: this.uni.toLowerCase()
-        });
-
-        if(r.data && r.data.ok){
-          localStorage.setItem('ue_user', JSON.stringify(r.data.user));
-          window.location = 'menu.html?uni='+this.uni.toLowerCase();
-          return;
-        }
-        this.error='Credenciales inválidas';
-      }catch(e){
-        const st = e?.response?.status;
-        if(st){ this.error = `Error ${st}: no se pudo iniciar sesión.`; }
-        else { this.error = 'No se pudo iniciar sesión.'; }
-      }finally{
-        this.cargando=false;
-      }
-    }
-  }
-});
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="js/inicio.js"></script>
 </body>
 </html>
+
 
 
 

@@ -9,31 +9,37 @@
 <body>
   <div id="app" class="page menu">
     <div class="card">
-      <div class="top-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div class="top-row">
         <div class="hello">¡Bienvenido/a!</div>
-        <div>
-          <label style="font-weight:700;margin:0 8px 0 0">MENÚ</label>
-          <select v-model="categoria">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <label style="font-weight:700;margin:0">MENÚ</label>
+          <select v-model="categoria" @change="cargar">
             <option value="">todo</option>
             <option>comida</option>
             <option>panificado</option>
             <option>bebida</option>
             <option>promo</option>
           </select>
+          <input v-model.trim="q" @input="cargar" placeholder="Buscar…" style="max-width:220px">
+          <span class="badge">Carrito: {{ totalItems }}</span>
         </div>
       </div>
 
+      <p v-if="error" class="error">{{ error }}</p>
+
       <ul class="list">
-        <li class="item" v-for="p in filtrados" :key="p.id">
+        <li class="item" v-for="p in productos" :key="p.id">
           <span>{{ p.nombre }}</span>
-          <span class="badge">${{ p.precio }}</span>
+          <span>
+            <span class="badge">${{ p.precio }}</span>
+            <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click="agregar(p)">Agregar</button>
+          </span>
         </li>
       </ul>
 
-      <button class="btn-primary btn-narrow" v-if="productos.length" @click="irAPago">
-        Ir a pago
+      <button class="btn-primary btn-narrow" @click="irCarrito">
+        Ir al carrito
       </button>
-      <p v-if="error" class="error">{{ error }}</p>
     </div>
 
     <nav class="nav-bottom">
@@ -43,55 +49,9 @@
     </nav>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script> if(!localStorage.getItem('ue_user')) location.href='inicio.html'; </script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script>
-    const UE_USER = localStorage.getItem('ue_user');
-    if (!UE_USER) { window.location = 'inicio.html'; }
-
-    function param(n){ return new URL(location.href).searchParams.get(n); }
-
-    new Vue({
-      el:'#app',
-      data:{
-        base: localStorage.getItem('ue_api') || 'http://127.0.0.1:4000',
-        uni: (param('uni')||'ucema'),
-        productos:[], categoria:'', error:''
-      },
-      computed:{
-        filtrados(){
-          if(!this.categoria) return this.productos;
-          return this.productos.filter(p=>p.categoria===this.categoria);
-        }
-      },
-      created(){
-        axios.get(this.base+'/api/productos?uni='+this.uni)
-          .then(r=>{
-            this.productos = r.data || [];
-            // guardo "carrito" base (1 unidad de cada uno para el TP)
-            localStorage.setItem('carrito', JSON.stringify(this.productos));
-          })
-          .catch(()=> this.error='No se pudo cargar el menú.');
-      },
-      methods:{
-        async irAPago(){
-          try{
-            const carrito = JSON.parse(localStorage.getItem('carrito')||'[]');
-            const items = carrito.map(p=>({id:p.id, cantidad:1}));
-            const r = await axios.post(this.base+'/api/pedidos',{uni:this.uni, items});
-            const id = r.data && r.data.id;
-            if(!id) throw new Error('sin id');
-            window.location='pago.html?uni='+this.uni+'&pedido='+id;
-          }catch(e){
-            this.error='No se pudo crear el pedido.';
-          }
-        }
-      }
-    });
-  </script>
+  <script src="js/menu.js"></script>
 </body>
 </html>
-
-
-
-
