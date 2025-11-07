@@ -20,7 +20,7 @@ new Vue({
       if (this.categoria) params.categoria = this.categoria;
       axios.get(API+'/api/productos',{params})
            .then(r=> this.productos=r.data)
-           .catch(()=> this.error='No se pudo cargar el menú. ¿Está encendido el backend?');
+           .catch(()=> this.error='No se pudo cargar el menú.');
     },
     agregar(p){
       const cart = JSON.parse(localStorage.getItem('ue_cart')||'[]');
