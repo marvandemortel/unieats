@@ -1,5 +1,7 @@
-// Listado + filtros + agrega al carrito
+// Carga menú (con ?uni y filtros) y permite agregar por click
 const API = localStorage.getItem('ue_api') || 'http://127.0.0.1:4000';
+const UE  = JSON.parse(localStorage.getItem('ue_user')||'{}');
+const UNI = (UE.uni || 'UCEMA').toLowerCase();
 
 new Vue({
   el:'#app',
@@ -13,12 +15,12 @@ new Vue({
   created(){ this.cargar(); },
   methods:{
     cargar(){
-      const params = {};
+      const params = { uni: UNI };
       if (this.q) params.q = this.q;
       if (this.categoria) params.categoria = this.categoria;
       axios.get(API+'/api/productos',{params})
            .then(r=> this.productos=r.data)
-           .catch(()=> this.error='No se pudo cargar el menú.');
+           .catch(()=> this.error='No se pudo cargar el menú. ¿Está encendido el backend?');
     },
     agregar(p){
       const cart = JSON.parse(localStorage.getItem('ue_cart')||'[]');
@@ -30,3 +32,4 @@ new Vue({
     irCarrito(){ location.href='carrito.html'; }
   }
 });
+

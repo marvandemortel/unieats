@@ -1,5 +1,7 @@
-// Confirma pedido (POST /api/pedidos) y redirige a pago
+// carrito.js — POST /api/pedidos con email y uni
 const API = localStorage.getItem('ue_api') || 'http://127.0.0.1:4000';
+const UE  = JSON.parse(localStorage.getItem('ue_user')||'{}');
+const UNI = (UE.uni || 'UCEMA').toLowerCase();
 
 new Vue({
   el:'#app',
@@ -21,15 +23,12 @@ new Vue({
     menos(it){ it.cantidad=Math.max(1, it.cantidad-1); this.persistir(); },
     confirmar(){
       this.error=''; 
-      const user = JSON.parse(localStorage.getItem('ue_user')||'{}');
-      if(!user.email){ location.href='inicio.html'; return; }
+      if(!UE.email){ location.href='inicio.html'; return; }
       if(!this.hora){ this.error='Elegí la hora de retiro'; return; }
       if(!this.items.length){ this.error='Carrito vacío'; return; }
       this.enviando=true;
       const payload = {
-        email: user.email,
-        uni: (user.uni||'UCEMA').toLowerCase(),
-        hora: this.hora,
+        email: UE.email, uni: UNI, hora: this.hora,
         items: this.items.map(it=>({id:it.id, cantidad:it.cantidad}))
       };
       axios.post(API+'/api/pedidos', payload)

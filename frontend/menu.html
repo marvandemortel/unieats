@@ -28,11 +28,11 @@
       <p v-if="error" class="error">{{ error }}</p>
 
       <ul class="list">
-        <li class="item" v-for="p in productos" :key="p.id">
+        <li class="item" v-for="p in productos" :key="p.id" @click="agregar(p)" title="Click para agregar">
           <span>{{ p.nombre }}</span>
           <span>
             <span class="badge">${{ p.precio }}</span>
-            <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click="agregar(p)">Agregar</button>
+            <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click.stop="agregar(p)">Agregar</button>
           </span>
         </li>
       </ul>

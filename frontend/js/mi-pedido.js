@@ -1,4 +1,4 @@
-// Ver estado + repetir
+// Ver estado + repetir (endpoint dedicado)
 const API = localStorage.getItem('ue_api') || 'http://127.0.0.1:4000';
 function param(n){ return new URL(location.href).searchParams.get(n); }
 
@@ -23,3 +23,4 @@ new Vue({
     }
   }
 });
+

@@ -1,4 +1,4 @@
-// Setea método de pago y pasa a retiro
+// PUT pago + paso a retiro
 const API = localStorage.getItem('ue_api') || 'http://127.0.0.1:4000';
 function param(n){ return new URL(location.href).searchParams.get(n); }
 
@@ -14,3 +14,4 @@ new Vue({
     }
   }
 });
+

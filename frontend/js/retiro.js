@@ -1,13 +1,11 @@
-// Permite cambiar/confirmar hora y va a confirmación
+// Setea hora y pasa a confirmación
 const API = localStorage.getItem('ue_api') || 'http://127.0.0.1:4000';
 function param(n){ return new URL(location.href).searchParams.get(n); }
 
 new Vue({
   el:'#app',
   data:()=>({ pedido:param('pedido')||'', horarios:[], hora:'', error:'' }),
-  created(){
-    this.horarios = this.genHoras();
-  },
+  created(){ this.horarios = this.genHoras(); },
   methods:{
     genHoras(){
       const out=[], pad=n=>String(n).padStart(2,'0');
@@ -21,3 +19,4 @@ new Vue({
     }
   }
 });
+
