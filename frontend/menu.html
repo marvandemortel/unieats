@@ -11,35 +11,42 @@
     <div class="card">
       <div class="top-row">
         <div class="hello">¡Bienvenido/a!</div>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <label style="font-weight:700;margin:0">MENÚ</label>
-          <select v-model="categoria" @change="cargar">
+        <div style="display:flex;gap:10px;align-items:center">
+          <label style="font-weight:700;margin:0 8px 0 0">MENÚ</label>
+          <select v-model="categoria">
             <option value="">todo</option>
             <option>comida</option>
             <option>panificado</option>
             <option>bebida</option>
             <option>promo</option>
           </select>
-          <input v-model.trim="q" @input="cargar" placeholder="Buscar…" style="max-width:220px">
-          <span class="badge">Carrito: {{ totalItems }}</span>
+          <input v-model.trim="q" placeholder="Buscar…"
+                 style="max-width:240px;margin-left:8px">
+          <span class="badge">Carrito: {{ cantCarrito }}</span>
         </div>
       </div>
 
-      <p v-if="error" class="error">{{ error }}</p>
+      <div v-if="tieneRepetir" style="margin:8px 0 12px">
+        <button class="btn-primary" style="max-width:220px" @click="repetirPedido">
+          Repetir mi último pedido
+        </button>
+      </div>
 
       <ul class="list">
-        <li class="item" v-for="p in productos" :key="p.id" @click="agregar(p)" title="Click para agregar">
+        <li class="item" v-for="p in filtrados" :key="p.id">
           <span>{{ p.nombre }}</span>
           <span>
             <span class="badge">${{ p.precio }}</span>
-            <button class="btn-primary" style="margin-left:8px;padding:8px 10px" @click.stop="agregar(p)">Agregar</button>
+            <button class="btn-primary" style="margin-left:8px;padding:8px 10px"
+                    @click="agregar(p)">Agregar</button>
           </span>
         </li>
       </ul>
 
-      <button class="btn-primary btn-narrow" @click="irCarrito">
-        Ir al carrito
+      <button class="btn-primary btn-narrow" :disabled="!carrito.length" @click="irAPago">
+        Ir al pago
       </button>
+      <p v-if="error" class="error">{{ error }}</p>
     </div>
 
     <nav class="nav-bottom">
@@ -49,9 +56,13 @@
     </nav>
   </div>
 
-  <script> if(!localStorage.getItem('ue_user')) location.href='inicio.html'; </script>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script>
+    const UE_USER = localStorage.getItem('ue_user');
+    if (!UE_USER) { window.location = 'inicio.html'; }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="js/menu.js"></script>
 </body>
 </html>
+
