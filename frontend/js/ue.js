@@ -1,29 +1,33 @@
-// Base de la API (backend Flask en 127.0.0.1:4000)
-const API = "http://127.0.0.1:4000";
+(function(){
+  const API = "http://127.0.0.1:4000";
+  const V = "v2";
+  const k = (n) => `ue_${V}_${n}`;
+  const get = (n, d=null) => { const s = localStorage.getItem(k(n)); return s?JSON.parse(s):d; };
+  const set = (n, v) => localStorage.setItem(k(n), JSON.stringify(v));
+  const del = (n) => localStorage.removeItem(k(n));
 
-const UE = {
-  // localStorage helpers
-  get(k, d = null) { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); },
-  set(k, v) { localStorage.setItem(k, JSON.stringify(v)); },
-  del(k) { localStorage.removeItem(k); },
-
-  user() { return UE.get("ue_user"); },
-  setUser(u) { UE.set("ue_user", u); },
-
-  cart() { return UE.get("ue_cart", []); },
-  setCart(c) { UE.set("ue_cart", c); },
-
-  // fetch JSON helpers
-  async j(method, path, body) {
-    const opt = { method, headers: { "Content-Type": "application/json" } };
-    if (body) opt.body = JSON.stringify(body);
-    const r = await fetch(`${API}${path}`, opt);
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw (data && data.error) || "Error";
+  async function api(path, {method="GET", body}={}) {
+    const r = await fetch(API+path, {
+      method, headers:{ "Content-Type":"application/json" },
+      body: body? JSON.stringify(body): undefined
+    });
+    let data = {}; try{ data = await r.json(); }catch{}
+    if(!r.ok) throw new Error(data.error || "Error");
     return data;
-  },
-  get(p) { return UE.j("GET", p); },
-  post(p, b) { return UE.j("POST", p, b); },
-  put(p, b) { return UE.j("PUT", p, b); },
-  delReq(p) { return UE.j("DELETE", p); }
-};
+  }
+
+  function requireLogin(){
+    const u = get("user");
+    if(!u) location.href = "inicio.html";
+    return u;
+  }
+
+  window.UE = {
+    API, get, set, del, requireLogin,
+    getJSON:(p)=>api(p),
+    postJSON:(p,b)=>api(p,{method:"POST",body:b}),
+    putJSON:(p,b)=>api(p,{method:"PUT",body:b}),
+    delJSON:(p)=>api(p,{method:"DELETE"}),
+    money:(n)=>"$"+(n||0).toLocaleString("es-AR")
+  };
+})();

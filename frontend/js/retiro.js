@@ -1,28 +1,39 @@
 new Vue({
   el: "#app",
-  data() {
-    return { hora: "", enviando: false, error: "" };
+  data: () => ({
+    user: null,
+    horas: ["10:00","10:15","10:30","10:45","11:00","11:15","11:30"],
+    horaSel: "",
+    enviando: false,
+    error: ""
+  }),
+  mounted(){
+    this.user = UE.requireLogin();
+    if (!UE.get("cart", []).length) location.href = "menu.html";
   },
-  methods: {
-    async confirmar() {
-      if (!this.hora) { this.error = "Elegí un horario."; return; }
-      try {
-        this.enviando = true;
-        const user = UE.user() || { uni: "ucema", email: "anon@ucema.edu.ar" };
-        const items = UE.cart().map(i => ({ id: i.id, cantidad: i.cantidad }));
-        const r = await UE.post("/api/pedidos", { uni: user.uni, items, hora: this.hora });
-        UE.set("ue_pedido_id", r.id);
-        // vaciamos el carrito una vez creado el pedido
-        UE.setCart([]);
+  methods:{
+    async confirmar(){
+      if(!this.horaSel){ this.error = "Elegí un horario."; return; }
+      this.enviando = true; this.error = "";
+      try{
+        const cart = UE.get("cart", []);
+        const items = cart.map(it => ({ id: it.id, cantidad: it.cantidad }));
+        const data = await UE.postJSON("/api/pedidos", {
+          uni: this.user.uni, items, hora: this.horaSel
+        });
+        UE.set("order_id", data.id);
+        UE.del("cart");
         location.href = "confirmacion.html";
-      } catch (_) {
+      }catch(e){
         this.error = "No se pudo confirmar.";
-      } finally {
+      }finally{
         this.enviando = false;
       }
     }
   }
 });
+
+
 
 
 

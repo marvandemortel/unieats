@@ -1,18 +1,26 @@
 new Vue({
   el: "#app",
-  data() {
-    return { pedido: null, error: "" };
-  },
-  async created() {
-    try {
-      const id = UE.get("ue_pedido_id");
-      if (!id) { this.error = "No hay pedido."; return; }
-      this.pedido = await UE.get(`/api/pedidos/${id}`);
-    } catch (_) {
+  data: () => ({
+    user: null,
+    pedido: null,
+    error: ""
+  }),
+  async mounted(){
+    this.user = UE.requireLogin();
+    const id = UE.get("order_id", null);
+    if (!id){ this.error = "Sin pedido."; return; }
+    try{
+      this.pedido = await UE.getJSON(`/api/pedidos/${id}`);
+    }catch(e){
       this.error = "No se pudo cargar el pedido.";
     }
+  },
+  computed:{
+    totalTxt(){ return this.pedido ? UE.money(this.pedido.total) : "$0"; }
   }
 });
+
+
 
 
 

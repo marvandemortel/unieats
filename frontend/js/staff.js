@@ -1,37 +1,45 @@
 new Vue({
   el: "#app",
-  data() {
-    return {
-      prods: [],
-      nuevo: { nombre: "", precio: "", categoria: "", uni: "generic" },
-      error: "",
-      ok: ""
-    };
+  data: () => ({
+    user: null,
+    productos: [],
+    pedidos: [],
+    nuevo: { nombre:"", precio:"", categoria:"comida", uni:"generic" },
+    error:""
+  }),
+  async mounted(){
+    this.user = UE.requireLogin();
+    await this.cargarTodo();
   },
-  async created() { await this.cargar(); },
-  methods: {
-    async cargar() {
-      try {
-        this.prods = await UE.get("/api/productos");
-        this.prods = this.prods.sort((a, b) => a.id - b.id);
-      } catch (_) { this.error = "No se pudo cargar productos."; }
+  methods:{
+    async cargarTodo(){
+      try{
+        this.productos = await UE.getJSON("/api/productos");
+        this.pedidos = await UE.getJSON("/api/pedidos");
+      }catch(e){ this.error = "No se pudo cargar."; }
     },
-    async crear() {
-      this.ok = ""; this.error = "";
-      try {
-        const body = {
-          nombre: this.nuevo.nombre,
-          precio: +this.nuevo.precio,
-          categoria: this.nuevo.categoria,
-          uni: this.nuevo.uni
-        };
-        await UE.post("/api/productos", body);
-        this.nuevo = { nombre: "", precio: "", categoria: "", uni: "generic" };
-        await this.cargar();
-        this.ok = "Guardado";
-      } catch (_) { this.error = "Datos inválidos."; }
+    async crear(){
+      try{
+        const p = {...this.nuevo, precio: parseInt(this.nuevo.precio||0,10)};
+        await UE.postJSON("/api/productos", p);
+        this.nuevo = { nombre:"", precio:"", categoria:"comida", uni:"generic" };
+        await this.cargarTodo();
+      }catch(e){ this.error = "No se pudo crear."; }
     },
-    async borrar(id) { await UE.delReq(`/api/productos/${id}`); await this.cargar(); }
+    async borrar(id){
+      try{ await UE.delJSON(`/api/productos/${id}`); await this.cargarTodo(); }
+      catch(e){ this.error = "No se pudo borrar."; }
+    },
+    async marcarPago(id, estado){
+      try{ await UE.putJSON(`/api/pedidos/${id}`, { pago: estado }); await this.cargarTodo(); }
+      catch(e){ this.error = "No se pudo actualizar."; }
+    },
+    async marcarEstado(id, estado){
+      try{ await UE.putJSON(`/api/pedidos/${id}`, { estado }); await this.cargarTodo(); }
+      catch(e){ this.error = "No se pudo actualizar."; }
+    }
   }
 });
+
+
 

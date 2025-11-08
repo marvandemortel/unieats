@@ -1,18 +1,25 @@
 new Vue({
   el: "#app",
-  data() {
-    return { metodo: "", error: "", items: UE.cart(), total: 0 };
+  data: () => ({
+    user: null,
+    metodo: "",
+    error: ""
+  }),
+  mounted(){
+    this.user = UE.requireLogin();
+    if (!UE.get("cart", []).length) location.href = "menu.html";
   },
-  created() { this.total = this.items.reduce((a, i) => a + i.precio * i.cantidad, 0); },
-  methods: {
-    elegir(m) { this.metodo = m; },
-    continuar() {
-      if (!this.metodo) { this.error = "Elegí un método de pago."; return; }
-      UE.set("ue_pago", this.metodo);
+  methods:{
+    elegir(m){ this.metodo = m; },
+    continuar(){
+      if(!this.metodo){ this.error = "Elegí un método de pago."; return; }
+      UE.set("pay_method", this.metodo);
       location.href = "retiro.html";
     }
   }
 });
+
+
 
 
 

@@ -1,40 +1,44 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>UniEats - Iniciar sesión</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UniEats — Iniciar sesión</title>
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-  <div id="app" class="login-wrap">
-    <div class="login-card">
-      <img src="img/logo.png" alt="UniEats" class="logo" />
-      <h1 class="brand-title">Uni<span class="brand-e">E</span>ats</h1>
-      <h2 class="login-title">Iniciar sesión</h2>
+  <div id="app" class="page login">
+    <div class="card">
+      <img class="logo" src="img/logo.png" alt="UniEats" />
+      <h1 class="brand">Uni<span class="brand-e">E</span>ats</h1>
+      <h2>Iniciar sesión</h2>
 
-      <label for="email">Email</label>
-      <input id="email" type="email" v-model.trim="email" placeholder="nombre@ucema.edu.ar" />
+      <form @submit.prevent="login">
+        <label for="email">Email</label>
+        <input id="email" type="email"
+               placeholder="usuario@ucema.edu.ar"
+               v-model="email" required />
 
-      <label for="pwd">Contraseña</label>
-      <input id="pwd" type="password" v-model.trim="password" placeholder="********" />
+        <label for="pass">Contraseña</label>
+        <input id="pass" type="password" v-model="password" required />
 
-      <label for="uni">Universidad</label>
-      <select id="uni" v-model="uni">
-        <option>UCEMA</option>
-      </select>
+        <label for="uni">Universidad</label>
+        <select id="uni" v-model="uni">
+          <option value="ucema">UCEMA</option>
+        </select>
 
-      <button class="btn-primary" @click="iniciar" :disabled="cargando">
-        {{ cargando ? 'Conectando…' : 'Iniciar sesión' }}
-      </button>
+        <button type="submit" class="btn-primary">Iniciar sesión</button>
+      </form>
 
-      <p v-if="error" class="error">{{ error }}</p>
+      <p class="error" v-if="error">{{ error }}</p>
     </div>
   </div>
 
-  <script src="https://unpkg.com/vue@2.7.16/dist/vue.js"></script>
-  <script src="js/ue.js"></script>
-  <script src="js/inicio.js"></script>
+  
+<script src="https://unpkg.com/vue@2.7.16/dist/vue.js"></script>
+<script src="js/ue.js"></script>
+<script src="js/inicio.js"></script>
 
 </body>
 </html>
+
