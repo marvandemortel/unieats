@@ -76,8 +76,39 @@ def guardar_db(db):
 def sig_id(items):
     return (max([i["id"] for i in items]) + 1) if items else 1
 
-VALID_EMAIL = "usuario@ucema.edu.ar"
-VALID_PASS  = "12345678"
+# VALID_EMAIL = "usuario@ucema.edu.ar"
+# VALID_PASS  = "12345678"
+
+def crear_usuario(email, password, uni):
+    db = leer_db()
+    if "usuarios" not in db:
+        db["usuarios"] = []
+    nuevo = {"email": email, "password": password, "uni": uni}
+    db["usuarios"].append(nuevo)
+    guardar_db(db)
+    return nuevo
+
+def buscar_usuario(email):
+    db = leer_db()
+    for u in db.get("usuarios", []):
+        if u.get("email","").lower() == email.lower():
+            return u
+    return None
+
+@app.post("/register")
+def register():
+    try:
+        data = request.get_json(force=True) or {}
+        email = (data.get("email") or data.get("username") or "").strip().lower()
+        password = str(data.get("password") or "").strip()
+        uni = (data.get("uni") or "ucema").lower()
+        leer_db()
+        crear_usuario(email, password, uni)
+        print(f"[REGISTER] email={email} len(pass)={len(password)} uni={uni}", file=sys.stdout, flush=True)
+        return jsonify({"ok": True, "user": {"email": email, "uni": uni}}), 201
+    except Exception as e:
+        return jsonify({"error": "No se pudo registrar el usuario."}), 500
+    
 
 @app.post("/login")
 def login():
@@ -86,7 +117,8 @@ def login():
     password = str(data.get("password") or "").strip()
     uni = (data.get("uni") or "ucema").lower()
     print(f"[LOGIN] email={email} len(pass)={len(password)} uni={uni}", file=sys.stdout, flush=True)
-    if email == VALID_EMAIL and password == VALID_PASS:
+    user = buscar_usuario(email)
+    if user and user.get("password","") == password:
         return jsonify({"ok": True, "user": {"email": email, "uni": uni}}), 200
     return jsonify({"error": "No se pudo iniciar sesión."}), 401
 
@@ -116,6 +148,7 @@ def crear_producto():
         precio = int(data["precio"])
         categoria = str(data["categoria"]).strip()
         uni = str(data.get("uni","generic")).strip().lower()
+        email = str(data.get("email","")).strip().lower()
     except Exception:
         return jsonify({"error":"Datos inválidos"}), 400
     nuevo = {"id": sig_id(db["productos"]), "uni": uni, "nombre": nombre, "precio": precio, "categoria": categoria}
@@ -172,6 +205,7 @@ def crear_pedido():
     db = leer_db()
     data = request.get_json() or {}
     uni   = (data.get("uni") or "generic").lower()
+    email = (data.get("email") or "").lower()
     items = data.get("items") or []
     hora  = data.get("hora") or ""
     nuevo = {
@@ -181,7 +215,8 @@ def crear_pedido():
         "hora": hora,
         "estado": "pendiente",
         "pago": "pendiente",
-        "total": 0
+        "total": 0,
+        "email": email
     }
     precios = {p["id"]: p["precio"] for p in db["productos"]}
     nuevo["total"] = sum(precios.get(it["id"],0)*int(it.get("cantidad",1)) for it in items)
@@ -205,6 +240,16 @@ def actualizar_pedido(pid):
             guardar_db(db)
             return jsonify(p), 200
     return jsonify({"error":"Pedido no encontrado"}), 404
+
+@app.delete("/api/pedido/<int:pid>")
+def borrar_pedido(pid):
+    db = leer_db()
+    antes = len(db["pedidos"])
+    db["pedidos"] = [p for p in db["pedidos"] if p["id"] != pid]
+    if len(db["pedidos"]) == antes:
+        return jsonify({"error":"Pedido no encontrado"}), 404
+    guardar_db(db)
+    return jsonify({"ok": True}), 200
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=4000, debug=True)

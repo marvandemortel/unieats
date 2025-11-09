@@ -1,5 +1,3 @@
-const FALLBACK_USER = { email: "usuario@ucema.edu.ar", pass: "12345678", uni: "ucema" };
-
 new Vue({
   el: "#app",
   data: () => ({
@@ -17,7 +15,6 @@ new Vue({
         password: this.password || "",
         uni: ((this.uni || "ucema") + "").toLowerCase(),
       };
-
       
       try {
         const res = await UE.postJSON("/login", payload);
@@ -27,23 +24,10 @@ new Vue({
           location.href = "menu.html";
           return;
         }
-      } catch (_) {
-        
+      } catch (e) {
+        console.error(e);
+        this.error = "No se pudo iniciar sesión.";
       }
-
-     
-      if (
-        payload.email === FALLBACK_USER.email &&
-        payload.password === FALLBACK_USER.pass &&
-        payload.uni === FALLBACK_USER.uni
-      ) {
-        UE.set("user", { email: payload.email, uni: payload.uni });
-        UE.set("cart", []);
-        location.href = "menu.html";
-        return;
-      }
-
-      this.error = "No se pudo iniciar sesión.";
     },
   },
 });

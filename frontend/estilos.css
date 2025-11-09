@@ -92,7 +92,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .nav-bottom{
   position:fixed;left:0;right:0;bottom:0;background:var(--white);
   border-top:1px solid var(--azul-borde);padding:8px 14px;
-  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:14px;
+  display:grid;grid-template-columns:repeat(2,1fr);gap:6px;font-size:14px;
 }
 .nav-item,.nav-link{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--azul);text-decoration:none}
 .ico,.nav-ico{filter:grayscale(100%)} /* emojis/íconos en blanco y negro */

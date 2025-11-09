@@ -7,23 +7,25 @@
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
-  <div class="page">
+  <div id="app" class="page">
     <div class="card" style="text-align:center">
       <img src="img/logo.png" class="logo" alt="UniEats" />
       <h2 class="brand-title">Uni<span class="brand-e">E</span>ats</h2>
       <div class="badge" style="font-size:20px;margin-top:10px">¡Tu pedido ha sido realizado con éxito!</div>
       <p>¡Gracias por usar UniEats!</p>
+      <button class="btn-primary btn-narrow" @click="cancelarPedido">
+        Cancelar pedido
+      </button>
     </div>
 
     <nav class="nav-bottom">
-      <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
-      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
-      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+      <a class="nav-item" href="./mi-pedido.html"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="./menu.html"><span class="ico">🍽️</span><span>Menu</span></a>
     </nav>
   </div>
   <script src="https://unpkg.com/vue@2.7.16/dist/vue.js"></script>
   <script src="js/ue.js"></script>
-  <script src="js/mi-pedido.js"></script>
+  <script src="js/confirmacion.js"></script>
 
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>UniEats — Iniciar sesión</title>
+  <title>UniEats — Registrarse</title>
   <link rel="stylesheet" href="estilos.css" />
 </head>
 <body>
@@ -11,9 +11,9 @@
     <div class="card">
       <img class="logo" src="img/logo.png" alt="UniEats" />
       <h1 class="brand">Uni<span class="brand-e">E</span>ats</h1>
-      <h2>Iniciar sesión</h2>
+      <h2>Registrarse</h2>
 
-      <form @submit.prevent="login">
+      <form @submit.prevent="register">
         <label for="email">Email</label>
         <input id="email" type="email"
                placeholder="usuario@ucema.edu.ar"
@@ -27,10 +27,10 @@
           <option value="ucema">UCEMA</option>
         </select>
 
-        <button type="submit" class="btn-primary">Iniciar sesión</button>
+        <button type="submit" class="btn-primary">Registrarse</button>
       </form>
 
-      <a href="./registro.html" class="link-primary">¿No tienes cuenta? Regístrate</a>
+      <a href="./inicio.html" class="link-primary">¿Ya tienes cuenta? Inicia sesión</a>
 
       <p class="error" v-if="error">{{ error }}</p>
     </div>
@@ -39,7 +39,7 @@
   
 <script src="https://unpkg.com/vue@2.7.16/dist/vue.js"></script>
 <script src="js/ue.js"></script>
-<script src="js/inicio.js"></script>
+<script src="js/registro.js"></script>
 
 </body>
 </html>

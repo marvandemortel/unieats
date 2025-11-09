@@ -8,31 +8,33 @@
 <body>
 <div id="app" class="page">
   <div class="card">
-    <h1 class="title" style="margin:6px 0 12px;color:#173a77">Mi pedido</h1>
+    <h1 class="title" style="margin:6px 0 12px;color:#173a77">Mis pedidos</h1>
     <p v-if="error" class="error">{{ error }}</p>
 
-    <p><strong>ID:</strong> {{ pedido.id }}</p>
-    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
-    <p><strong>Pago:</strong> {{ pedido.pago }}</p>
-    <p><strong>Hora:</strong> {{ pedido.hora || '-' }}</p>
-
-    <ul class="list">
-      <li class="item" v-for="it in pedido.items" :key="it.id">
-        <span>{{ nombreDe(it.id) }} × {{ it.cantidad }}</span>
-      </li>
+    <ul v-if="pedidos.length === 0">
+      <li>No tienes pedidos realizados.</li>
     </ul>
-
-    <button class="btn-primary" style="max-width:220px" @click="recargar">Refrescar</button>
+    <ul v-else>
+      <li class="item" v-for="pedido in pedidos" :key="pedido.id" style="flex-direction:column;align-items:flex-start">
+      <p><strong>ID:</strong> {{ pedido.id }}</p>
+      <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+      <p><strong>Pago:</strong> {{ pedido.pago }}</p>
+      <p><strong>Hora:</strong> {{ pedido.hora || '-' }}</p>
+  
+      <p><strong>Items:</strong></p>
+      <ul>
+        <li v-for="item in pedido.items" :key="item.id">
+          Producto: {{ item.nombre }}, Cantidad: {{ item.cantidad }}, Precio: ${{ item.precio }}
+        </li>
+    </ul>
   </div>
 
   <nav class="nav-bottom">
-    <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
-    <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
-    <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
-  </nav>
+      <a class="nav-item" href="./mi-pedido.html"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="./menu.html"><span class="ico">🍽️</span><span>Menu</span></a>
+    </nav>
 </div>
 
-<script> if (!localStorage.getItem('ue_user')) location='inicio.html'; </script>
 <script src="https://unpkg.com/vue@2.7.16/dist/vue.js"></script>
 <script src="js/ue.js"></script>
 <script src="js/mi-pedido.js"></script>

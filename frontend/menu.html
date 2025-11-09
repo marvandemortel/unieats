@@ -14,7 +14,7 @@
         <div style="display:flex;gap:10px;align-items:center">
           <label style="font-weight:700;margin:0 8px 0 0">MENÚ</label>
           <select v-model="categoria">
-            <option value="">todo</option>
+            <option>todo</option>
             <option>comida</option>
             <option>panificado</option>
             <option>bebida</option>
@@ -26,19 +26,16 @@
         </div>
       </div>
 
-      <div v-if="tieneRepetir" style="margin:8px 0 12px">
-        <button class="btn-primary" style="max-width:220px" @click="repetirPedido">
-          Repetir mi último pedido
-        </button>
-      </div>
-
       <ul class="list">
         <li class="item" v-for="p in filtrados" :key="p.id">
           <span>{{ p.nombre }}</span>
           <span>
             <span class="badge">${{ p.precio }}</span>
             <button class="btn-primary" style="margin-left:8px;padding:8px 10px"
-                    @click="agregar(p)">Agregar</button>
+                    @click="quitar(p)">-</button>
+            <span style="margin:0 6px">{{ cantidadEnCarrito(p) }}</span>
+            <button class="btn-primary" style="margin-left:8px;padding:8px 10px"
+                    @click="agregar(p)">+</button>
           </span>
         </li>
       </ul>
@@ -50,9 +47,8 @@
     </div>
 
     <nav class="nav-bottom">
-      <a class="nav-item" href="#"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
-      <a class="nav-item" href="#"><span class="ico">🔔︎</span><span>Notificaciones</span></a>
-      <a class="nav-item" href="#"><span class="ico">👤︎</span><span>Mi Perfil</span></a>
+      <a class="nav-item" href="./mi-pedido.html"><span class="ico">📋︎</span><span>Mis Pedidos</span></a>
+      <a class="nav-item" href="./menu.html"><span class="ico">🍽️</span><span>Menu</span></a>
     </nav>
   </div>
 
